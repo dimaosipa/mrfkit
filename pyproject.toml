@@ -13,7 +13,7 @@ requires-python = ">=3.11"
 authors = [{ name = "Dima Osipa" }]
 keywords = ["price transparency", "mrf", "hospital", "healthcare", "cms", "transparency in coverage"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3",
@@ -28,6 +28,9 @@ dependencies = [
 [project.optional-dependencies]
 parquet = ["pyarrow>=14"]
 dev = ["pytest>=8", "pyarrow>=14"]
+
+[project.scripts]
+mrfkit = "mrfkit.cli:main"
 
 [project.urls]
 Source = "https://github.com/dimaosipa/mrfkit"
