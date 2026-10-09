@@ -526,7 +526,10 @@ def _safe_count(value) -> Optional[int]:
         return None
     # Plain numeric
     if s.replace('.', '', 1).replace('-', '', 1).isdigit():
-        return int(float(s))
+        try:
+            return int(float(s))
+        except ValueError:
+            pass  # "1-10" passes the digit check but is a range, handled below
     # Range pattern: "1 through 10", "1-10", "1 to 10"
     import re
     m = re.search(r'(\d+)\s*(?:through|thru|to|-)\s*(\d+)', s, re.IGNORECASE)
