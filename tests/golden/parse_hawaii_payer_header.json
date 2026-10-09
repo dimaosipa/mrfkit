@@ -1,0 +1,74 @@
+[
+  {
+    "id": "outpatient_percent_of_charges",
+    "description": "HMSA ABD Plans outpatient percent of charges",
+    "input": {"source_header": "QuestIntegrationHMSA-ABDPlans_Outpatient_PercentofCharges"},
+    "expected": {"payer": "QuestIntegrationHMSA-ABDPlans", "setting": "outpatient", "methodology": "percent_of_charge"}
+  },
+  {
+    "id": "inpatient_per_diem_with_suffix",
+    "description": "Alohacare inpatient per diem with numeric suffix",
+    "input": {"source_header": "QuestIntegrationAlohacare-ABD&NONABDPlansPlans_Inpatient_PerDiem_3"},
+    "expected": {"payer": "QuestIntegrationAlohacare-ABD&NONABDPlansPlans", "setting": "inpatient", "methodology": "per_diem"}
+  },
+  {
+    "id": "emergency_fee_schedule",
+    "description": "Ohana behavioral health emergency room fee schedule",
+    "input": {"source_header": "OhanaCCSSMI-BehavioralHealthPlans_EmergencyRoom_FeeSchedule"},
+    "expected": {"payer": "OhanaCCSSMI-BehavioralHealthPlans", "setting": "emergency", "methodology": "fee_schedule"}
+  },
+  {
+    "id": "inpatient_case_rate",
+    "description": "Simple payer inpatient case rate",
+    "input": {"source_header": "SomePayer_Inpatient_CaseRate"},
+    "expected": {"payer": "SomePayer", "setting": "inpatient", "methodology": "case_rate"}
+  },
+  {
+    "id": "outpatient_fee_schedule",
+    "description": "Payer outpatient fee schedule",
+    "input": {"source_header": "UnitedHealthcare_Outpatient_FeeSchedule"},
+    "expected": {"payer": "UnitedHealthcare", "setting": "outpatient", "methodology": "fee_schedule"}
+  },
+  {
+    "id": "not_a_payer_column_gross",
+    "description": "InpatientGrossCharge is not a payer column",
+    "input": {"source_header": "InpatientGrossCharge"},
+    "expected": null
+  },
+  {
+    "id": "not_a_payer_column_description",
+    "description": "Description is not a payer column",
+    "input": {"source_header": "Description"},
+    "expected": null
+  },
+  {
+    "id": "too_few_parts",
+    "description": "Single-part header returns None",
+    "input": {"source_header": "ProcedureCode"},
+    "expected": null
+  },
+  {
+    "id": "unknown_methodology",
+    "description": "Unknown methodology token returns None",
+    "input": {"source_header": "SomePayer_Inpatient_UnknownMethod"},
+    "expected": null
+  },
+  {
+    "id": "unknown_setting",
+    "description": "Unknown setting token returns None",
+    "input": {"source_header": "SomePayer_InvalidSetting_FeeSchedule"},
+    "expected": null
+  },
+  {
+    "id": "payer_with_underscores",
+    "description": "Payer name containing underscores",
+    "input": {"source_header": "Some_Complex_Payer_Outpatient_PerDiem"},
+    "expected": {"payer": "Some_Complex_Payer", "setting": "outpatient", "methodology": "per_diem"}
+  },
+  {
+    "id": "emergency_percent_with_suffix",
+    "description": "Emergency room percent of charges with numeric suffix",
+    "input": {"source_header": "SomePayer_EmergencyRoom_PercentofCharges_2"},
+    "expected": {"payer": "SomePayer", "setting": "emergency", "methodology": "percent_of_charge"}
+  }
+]

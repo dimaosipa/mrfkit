@@ -1,0 +1,823 @@
+[
+  {
+    "id": "none_input",
+    "description": "None payer returns None",
+    "input": {"raw_payer": null, "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+  {
+    "id": "empty_string",
+    "description": "Empty string payer returns None",
+    "input": {"raw_payer": "", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+  {
+    "id": "whitespace_only",
+    "description": "Whitespace-only payer returns None",
+    "input": {"raw_payer": "  ", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+
+  {
+    "id": "junk_na_hash",
+    "description": "#N/A is a junk payer name",
+    "input": {"raw_payer": "#N/A", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+  {
+    "id": "junk_na",
+    "description": "N/A is a junk payer name",
+    "input": {"raw_payer": "N/A", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+  {
+    "id": "junk_generic_hmo",
+    "description": "GENERIC HMO is a junk payer name",
+    "input": {"raw_payer": "GENERIC HMO", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+  {
+    "id": "junk_generic_ppo",
+    "description": "GENERIC PPO is a junk payer name",
+    "input": {"raw_payer": "GENERIC PPO", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+  {
+    "id": "junk_generic_commercial",
+    "description": "GENERIC COMMERCIAL/INDEMNITY is junk",
+    "input": {"raw_payer": "GENERIC COMMERCIAL/INDEMNITY", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+  {
+    "id": "junk_medicare_adv_generic",
+    "description": "MEDICARE ADV GENERIC is junk",
+    "input": {"raw_payer": "MEDICARE ADV GENERIC", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+  {
+    "id": "junk_bare_medical",
+    "description": "Bare MEDI-CAL (program, not payer) is junk",
+    "input": {"raw_payer": "MEDI-CAL", "raw_plan": null},
+    "expected": {"canonical": null, "plan": null}
+  },
+
+  {
+    "id": "bracket_unwrap_kaiser",
+    "description": "Bracket-wrapped name unwrapped before matching",
+    "input": {"raw_payer": "[Kaiser Foundation Health Plan, Inc.]", "raw_plan": null},
+    "expected": {"canonical": "Kaiser Permanente", "plan": null}
+  },
+
+  {
+    "id": "contract_id_stripped_aetna",
+    "description": "Contract ID in brackets stripped before matching",
+    "input": {"raw_payer": "AETNA HMO [1001103]", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "HMO"}
+  },
+  {
+    "id": "contract_id_stripped_blue_shield",
+    "description": "Contract ID stripped, no suffix → no plan enrichment",
+    "input": {"raw_payer": "BLUE SHIELD [1640000007]", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": null}
+  },
+
+  {
+    "id": "prefix_jmpn",
+    "description": "JMPN hospital prefix stripped",
+    "input": {"raw_payer": "JMPN AETNA [123]", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": null}
+  },
+  {
+    "id": "prefix_shca_comm",
+    "description": "SHCA COMM hospital prefix stripped, plan type extracted",
+    "input": {"raw_payer": "SHCA COMM BLUE SHIELD PPO", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": "PPO"}
+  },
+  {
+    "id": "prefix_hills",
+    "description": "HILLS hospital prefix stripped",
+    "input": {"raw_payer": "HILLS CIGNA", "raw_plan": null},
+    "expected": {"canonical": "Cigna", "plan": null}
+  },
+  {
+    "id": "prefix_psych",
+    "description": "PSYCH hospital prefix stripped",
+    "input": {"raw_payer": "PSYCH BLUE SHIELD PPO", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": "PPO"}
+  },
+
+  {
+    "id": "canonical_aetna",
+    "description": "Direct canonical match: AETNA",
+    "input": {"raw_payer": "AETNA", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": null}
+  },
+  {
+    "id": "canonical_anthem",
+    "description": "Direct canonical match: ANTHEM BLUE CROSS",
+    "input": {"raw_payer": "ANTHEM BLUE CROSS", "raw_plan": null},
+    "expected": {"canonical": "Anthem Blue Cross", "plan": null}
+  },
+  {
+    "id": "canonical_blue_shield",
+    "description": "Direct canonical match: BLUE SHIELD OF CALIFORNIA",
+    "input": {"raw_payer": "BLUE SHIELD OF CALIFORNIA", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": null}
+  },
+  {
+    "id": "canonical_cigna",
+    "description": "Direct canonical match: CIGNA",
+    "input": {"raw_payer": "CIGNA", "raw_plan": null},
+    "expected": {"canonical": "Cigna", "plan": null}
+  },
+  {
+    "id": "canonical_health_net",
+    "description": "Direct canonical match: HEALTH NET",
+    "input": {"raw_payer": "HEALTH NET", "raw_plan": null},
+    "expected": {"canonical": "Health Net", "plan": null}
+  },
+  {
+    "id": "canonical_humana",
+    "description": "Direct canonical match: HUMANA",
+    "input": {"raw_payer": "HUMANA", "raw_plan": null},
+    "expected": {"canonical": "Humana", "plan": null}
+  },
+  {
+    "id": "canonical_kaiser",
+    "description": "Direct canonical match: KAISER PERMANENTE",
+    "input": {"raw_payer": "KAISER PERMANENTE", "raw_plan": null},
+    "expected": {"canonical": "Kaiser Permanente", "plan": null}
+  },
+  {
+    "id": "canonical_united",
+    "description": "Direct canonical match: UNITED HEALTHCARE",
+    "input": {"raw_payer": "UNITED HEALTHCARE", "raw_plan": null},
+    "expected": {"canonical": "United Healthcare", "plan": null}
+  },
+  {
+    "id": "canonical_uhc_abbreviation",
+    "description": "UHC abbreviation maps to United Healthcare",
+    "input": {"raw_payer": "UHC", "raw_plan": null},
+    "expected": {"canonical": "United Healthcare", "plan": null}
+  },
+  {
+    "id": "canonical_multiplan_phcs",
+    "description": "PHCS-MULTIPLAN maps to MultiPlan",
+    "input": {"raw_payer": "PHCS-MULTIPLAN", "raw_plan": null},
+    "expected": {"canonical": "MultiPlan", "plan": null}
+  },
+  {
+    "id": "canonical_beech_street",
+    "description": "BEECH STREET maps to MultiPlan",
+    "input": {"raw_payer": "BEECH STREET", "raw_plan": null},
+    "expected": {"canonical": "MultiPlan", "plan": null}
+  },
+  {
+    "id": "canonical_claritev",
+    "description": "CLARITEV maps to MultiPlan",
+    "input": {"raw_payer": "CLARITEV", "raw_plan": null},
+    "expected": {"canonical": "MultiPlan", "plan": null}
+  },
+
+  {
+    "id": "suffix_hmo_extracted",
+    "description": "HMO suffix extracted as plan type",
+    "input": {"raw_payer": "AETNA HMO", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "HMO"}
+  },
+  {
+    "id": "suffix_ppo_extracted",
+    "description": "PPO suffix extracted as plan type",
+    "input": {"raw_payer": "AETNA PPO", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "PPO"}
+  },
+  {
+    "id": "suffix_epo_extracted",
+    "description": "EPO suffix extracted as plan type",
+    "input": {"raw_payer": "HEALTH NET EPO", "raw_plan": null},
+    "expected": {"canonical": "Health Net", "plan": "EPO"}
+  },
+  {
+    "id": "suffix_pos_extracted",
+    "description": "POS suffix extracted as plan type",
+    "input": {"raw_payer": "AETNA POS", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "POS"}
+  },
+  {
+    "id": "suffix_medicare_advantage",
+    "description": "MEDICARE ADVANTAGE suffix extracted",
+    "input": {"raw_payer": "BLUE SHIELD MEDICARE ADVANTAGE", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": "Medicare Advantage"}
+  },
+  {
+    "id": "suffix_mcare_extracted",
+    "description": "MCARE suffix extracted and normalized to Medicare",
+    "input": {"raw_payer": "ANTHEM BLUE CROSS MCARE", "raw_plan": null},
+    "expected": {"canonical": "Anthem Blue Cross", "plan": "Medicare"}
+  },
+  {
+    "id": "suffix_medicare_extracted",
+    "description": "MEDICARE suffix extracted",
+    "input": {"raw_payer": "BLUE SHIELD MEDICARE", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": "Medicare"}
+  },
+  {
+    "id": "suffix_medical_extracted",
+    "description": "MEDI-CAL suffix extracted",
+    "input": {"raw_payer": "CIGNA MEDI-CAL", "raw_plan": null},
+    "expected": {"canonical": "Cigna", "plan": "Medi-Cal"}
+  },
+  {
+    "id": "suffix_hmo_ppo_compound",
+    "description": "HMO/PPO compound suffix extracted and normalized",
+    "input": {"raw_payer": "HEALTHNET HMO/PPO", "raw_plan": null},
+    "expected": {"canonical": "Health Net", "plan": "HMO/PPO"}
+  },
+  {
+    "id": "suffix_eppo_normalized",
+    "description": "EPPO suffix extracted and normalized to PPO",
+    "input": {"raw_payer": "BLUE SHIELD EPPO", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": "PPO"}
+  },
+  {
+    "id": "suffix_life_extracted",
+    "description": "LIFE suffix extracted",
+    "input": {"raw_payer": "BLUE SHIELD LIFE", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": "Life"}
+  },
+  {
+    "id": "suffix_all_other_plans",
+    "description": "-ALL OTHER PLANS suffix extracted",
+    "input": {"raw_payer": "AETNA-ALL OTHER PLANS", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "All Other Plans"}
+  },
+  {
+    "id": "suffix_all_plans_with_space",
+    "description": " - ALL PLANS suffix extracted",
+    "input": {"raw_payer": "BLUE SHIELD - ALL PLANS", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": "All Plans"}
+  },
+  {
+    "id": "suffix_network",
+    "description": "-NETWORK suffix extracted",
+    "input": {"raw_payer": "CIGNA-NETWORK", "raw_plan": null},
+    "expected": {"canonical": "Cigna", "plan": "Network"}
+  },
+  {
+    "id": "suffix_alternate_payer",
+    "description": "ALTERNATE PAYER suffix extracted",
+    "input": {"raw_payer": "AETNA ALTERNATE PAYER", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "Alternate Payer"}
+  },
+  {
+    "id": "suffix_choice_care",
+    "description": "CHOICE CARE suffix extracted",
+    "input": {"raw_payer": "HUMANA CHOICE CARE", "raw_plan": null},
+    "expected": {"canonical": "Humana", "plan": "Choice Care"}
+  },
+  {
+    "id": "suffix_hmo_ifp_normalize_bug",
+    "description": "HMO/IFP suffix: Hmo replaced before Hmo/Ifp pattern (known ordering issue)",
+    "input": {"raw_payer": "AETNA HMO/IFP", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "HMO/Ifp"}
+  },
+
+  {
+    "id": "existing_plan_not_overwritten",
+    "description": "Existing plan_name preserved even when suffix is extracted",
+    "input": {"raw_payer": "AETNA HMO", "raw_plan": "MyPlan"},
+    "expected": {"canonical": "Aetna", "plan": "MyPlan"}
+  },
+
+  {
+    "id": "trailing_health_plan",
+    "description": "Trailing 'HEALTH PLAN' stripped for matching",
+    "input": {"raw_payer": "ALIGNMENT HEALTH PLAN", "raw_plan": null},
+    "expected": {"canonical": "Alignment Health Plan", "plan": null}
+  },
+  {
+    "id": "trailing_healthcare",
+    "description": "Trailing 'HEALTHCARE' stripped for matching",
+    "input": {"raw_payer": "ALIGNMENT HEALTHCARE", "raw_plan": null},
+    "expected": {"canonical": "Alignment Health Plan", "plan": null}
+  },
+  {
+    "id": "inc_suffix_stripped",
+    "description": ", INC. suffix stripped for matching",
+    "input": {"raw_payer": "KAISER FOUNDATION HEALTH PLAN, INC.", "raw_plan": null},
+    "expected": {"canonical": "Kaiser Permanente", "plan": null}
+  },
+
+  {
+    "id": "titlecase_fallback_unknown",
+    "description": "Unknown payer title-cased as fallback",
+    "input": {"raw_payer": "SOME UNKNOWN PAYER", "raw_plan": null},
+    "expected": {"canonical": "Some Unknown Payer", "plan": null}
+  },
+  {
+    "id": "titlecase_fallback_mixed_case",
+    "description": "Mixed-case unknown payer title-cased",
+    "input": {"raw_payer": "weird mixed CASE payer", "raw_plan": null},
+    "expected": {"canonical": "Weird Mixed Case Payer", "plan": null}
+  },
+
+  {
+    "id": "whitespace_collapse",
+    "description": "Multiple spaces collapsed during normalization",
+    "input": {"raw_payer": "AETNA   HMO", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "HMO"}
+  },
+
+  {
+    "id": "brown_toland_variant",
+    "description": "BROWN AND TOLAND maps to Brown & Toland",
+    "input": {"raw_payer": "BROWN AND TOLAND", "raw_plan": null},
+    "expected": {"canonical": "Brown & Toland", "plan": null}
+  },
+  {
+    "id": "brown_toland_health_services",
+    "description": "BROWN & TOLAND HEALTH SERVICES maps to Brown & Toland",
+    "input": {"raw_payer": "BROWN & TOLAND HEALTH SERVICES", "raw_plan": null},
+    "expected": {"canonical": "Brown & Toland", "plan": null}
+  },
+  {
+    "id": "sutter_health_plus",
+    "description": "SUTTER HEALTH PLUS maps to Sutter Health Plan",
+    "input": {"raw_payer": "SUTTER HEALTH PLUS", "raw_plan": null},
+    "expected": {"canonical": "Sutter Health Plan", "plan": null}
+  },
+  {
+    "id": "uhc_west_comm",
+    "description": "UHC WEST COMM matches directly in canonical map",
+    "input": {"raw_payer": "UHC WEST COMM", "raw_plan": null},
+    "expected": {"canonical": "United Healthcare", "plan": null}
+  },
+
+  {
+    "id": "underscore_blue_shield",
+    "description": "Underscores replaced with spaces before matching",
+    "input": {"raw_payer": "BLUE_SHIELD_OF_CALIFORNIA", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": null}
+  },
+  {
+    "id": "underscore_aetna_hmo",
+    "description": "Underscores in payer with plan suffix",
+    "input": {"raw_payer": "AETNA_HMO", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": "HMO"}
+  },
+  {
+    "id": "underscore_united_healthcare",
+    "description": "Underscores in United Healthcare",
+    "input": {"raw_payer": "UNITED_HEALTHCARE", "raw_plan": null},
+    "expected": {"canonical": "United Healthcare", "plan": null}
+  },
+  {
+    "id": "underscore_anthem_blue_cross_ppo",
+    "description": "Underscores with plan type suffix",
+    "input": {"raw_payer": "ANTHEM_BLUE_CROSS_PPO", "raw_plan": null},
+    "expected": {"canonical": "Anthem Blue Cross", "plan": "PPO"}
+  },
+  {
+    "id": "underscore_unknown_payer",
+    "description": "Underscores in unknown payer title-cased",
+    "input": {"raw_payer": "SOME_UNKNOWN_PAYER", "raw_plan": null},
+    "expected": {"canonical": "Some Unknown Payer", "plan": null}
+  },
+  {
+    "id": "underscore_with_contract_id",
+    "description": "Underscores replaced after contract ID stripped",
+    "input": {"raw_payer": "BLUE_SHIELD_OF_CALIFORNIA [123]", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": null}
+  },
+
+  {
+    "id": "new_map_ambetter",
+    "description": "Ambetter direct match (new map entry)",
+    "input": {"raw_payer": "AMBETTER", "raw_plan": null},
+    "expected": {"canonical": "Ambetter", "plan": null}
+  },
+  {
+    "id": "new_map_ambetter_variant",
+    "description": "Ambetter variant from expanded map",
+    "input": {"raw_payer": "AMBETTER CASCADE COMPLETE", "raw_plan": null},
+    "expected": {"canonical": "Ambetter", "plan": null}
+  },
+  {
+    "id": "new_map_oscar_health",
+    "description": "Oscar Health direct match (new map entry)",
+    "input": {"raw_payer": "OSCAR HEALTH", "raw_plan": null},
+    "expected": {"canonical": "Oscar Health", "plan": null}
+  },
+  {
+    "id": "new_map_molina_healthcare",
+    "description": "Molina Healthcare of California (new map entry)",
+    "input": {"raw_payer": "MOLINA HEALTHCARE OF CALIFORNIA", "raw_plan": null},
+    "expected": {"canonical": "Molina Healthcare", "plan": null}
+  },
+  {
+    "id": "new_map_blue_cross_junk_prefix",
+    "description": "Blue Cross with numeric prefix mapped to Anthem (new map entry)",
+    "input": {"raw_payer": "26056 BLUE CROSS SR MEDICARE ADVANTAGE P", "raw_plan": null},
+    "expected": {"canonical": "Anthem Blue Cross", "plan": null}
+  },
+  {
+    "id": "new_map_chinese_community_hp",
+    "description": "Chinese Community Health Plan variant (new map entry)",
+    "input": {"raw_payer": "CHINESE COMMUNITY HEALTH PLAN", "raw_plan": null},
+    "expected": {"canonical": "Chinese Community Health Plan", "plan": null}
+  },
+  {
+    "id": "new_map_hill_physicians",
+    "description": "Hill Physicians direct match (new map entry)",
+    "input": {"raw_payer": "HILL PHYSICIANS", "raw_plan": null},
+    "expected": {"canonical": "Hill Physicians", "plan": null}
+  },
+  {
+    "id": "new_map_workers_comp_variant",
+    "description": "Workers comp variant with ADVA-NET prefix (new map entry)",
+    "input": {"raw_payer": "ADVA-NET WORK COMP", "raw_plan": null},
+    "expected": {"canonical": "Workers' Comp", "plan": null}
+  },
+  {
+    "id": "new_map_caloptima",
+    "description": "CalOptima direct match (new map entry)",
+    "input": {"raw_payer": "CALOPTIMA", "raw_plan": null},
+    "expected": {"canonical": "CalOptima", "plan": null}
+  },
+
+  {
+    "id": "prefix_fallback_aetna_unknown_suffix",
+    "description": "Prefix fallback: unknown Aetna variant resolves to Aetna",
+    "input": {"raw_payer": "AETNA TOTALLY NEW VARIANT 2026", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": null}
+  },
+  {
+    "id": "prefix_fallback_cigna_unknown_suffix",
+    "description": "Prefix fallback: unknown Cigna variant resolves to Cigna",
+    "input": {"raw_payer": "CIGNA RANDOM THING", "raw_plan": null},
+    "expected": {"canonical": "Cigna", "plan": null}
+  },
+  {
+    "id": "prefix_fallback_blue_shield_extra",
+    "description": "Prefix fallback: Blue Shield with extra words resolves to Blue Shield of California",
+    "input": {"raw_payer": "BLUE SHIELD OF CALIFORNIA SOME NEW PLAN TYPE", "raw_plan": null},
+    "expected": {"canonical": "Blue Shield of California", "plan": null}
+  },
+  {
+    "id": "prefix_fallback_multiword_match",
+    "description": "Prefix fallback: multi-word canonical matched by prefix stripping",
+    "input": {"raw_payer": "HEALTH NET BRAND NEW PRODUCT LINE", "raw_plan": null},
+    "expected": {"canonical": "Health Net", "plan": null}
+  },
+  {
+    "id": "prefix_fallback_does_not_match_unknown",
+    "description": "Prefix fallback: fully unknown name still title-cased",
+    "input": {"raw_payer": "COMPLETELY UNKNOWN INSURER CORP", "raw_plan": null},
+    "expected": {"canonical": "Completely Unknown Insurer Corp", "plan": null}
+  },
+  {
+    "id": "prefix_fallback_with_plan_suffix",
+    "description": "Prefix fallback: plan suffix extracted first, then prefix fallback on remainder",
+    "input": {"raw_payer": "MOLINA HEALTHCARE NEW REGION PPO", "raw_plan": null},
+    "expected": {"canonical": "Molina Healthcare", "plan": "PPO"}
+  },
+  {
+    "id": "mutual_of_omaha_direct",
+    "description": "Mutual Of Omaha (title case) maps to canonical Mutual of Omaha",
+    "input": {"raw_payer": "Mutual Of Omaha", "raw_plan": null},
+    "expected": {"canonical": "Mutual of Omaha", "plan": null}
+  },
+  {
+    "id": "mutual_of_omaha_upper",
+    "description": "MUTUAL OF OMAHA maps to canonical Mutual of Omaha",
+    "input": {"raw_payer": "MUTUAL OF OMAHA", "raw_plan": null},
+    "expected": {"canonical": "Mutual of Omaha", "plan": null}
+  },
+
+  {
+    "id": "angle_bracket_aetna",
+    "description": "Angle-bracket-wrapped payer name is unwrapped: <Aetna> → Aetna",
+    "input": {"raw_payer": "<Aetna>", "raw_plan": null},
+    "expected": {"canonical": "Aetna", "plan": null}
+  },
+  {
+    "id": "angle_bracket_bcbs",
+    "description": "Angle-bracket-wrapped payer: <Blue Cross Blue Shield> → Blue Cross Blue Shield",
+    "input": {"raw_payer": "<Blue Cross Blue Shield>", "raw_plan": null},
+    "expected": {"canonical": "Blue Cross Blue Shield", "plan": null}
+  },
+  {
+    "id": "mismatched_brackets_not_unwrapped",
+    "description": "Mismatched brackets [Aetna> are NOT unwrapped - treated as literal characters",
+    "input": {"raw_payer": "[Aetna>", "raw_plan": null},
+    "expected": {"canonical": "[Aetna>", "plan": null}
+  },
+
+  {"id": "highmark_inc", "description": "Highmark Inc maps to Highmark BCBS",
+   "input": {"raw_payer": "HIGHMARK INC", "raw_plan": null},
+   "expected": {"canonical": "Highmark Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "highmark_bcbs_de", "description": "Highmark BCBS Delaware variant",
+   "input": {"raw_payer": "HIGHMARK BCBS DE", "raw_plan": null},
+   "expected": {"canonical": "Highmark Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "highmark_freedom_blue", "description": "Highmark Freedom Blue (Medicare) maps to Highmark",
+   "input": {"raw_payer": "HIGHMARK FREEDOM BLUE", "raw_plan": null},
+   "expected": {"canonical": "Highmark Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "carefirst_bluechoice", "description": "CareFirst BlueChoice maps to CareFirst BCBS",
+   "input": {"raw_payer": "CAREFIRST BLUECHOICE", "raw_plan": null},
+   "expected": {"canonical": "CareFirst Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "ghmsi_to_carefirst", "description": "GHMSI (Group Hospitalization and Medical Services Inc) maps to CareFirst",
+   "input": {"raw_payer": "GHMSI", "raw_plan": null},
+   "expected": {"canonical": "CareFirst Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "florida_blue_short", "description": "FL BLUE abbreviation maps to Florida Blue",
+   "input": {"raw_payer": "FL BLUE", "raw_plan": null},
+   "expected": {"canonical": "Florida Blue", "plan": null}},
+
+  {"id": "guidewell_to_florida_blue", "description": "GuideWell (Florida Blue parent co) maps to Florida Blue",
+   "input": {"raw_payer": "GUIDEWELL", "raw_plan": null},
+   "expected": {"canonical": "Florida Blue", "plan": null}},
+
+  {"id": "premera_short", "description": "PREMERA alone maps to Premera Blue Cross",
+   "input": {"raw_payer": "PREMERA", "raw_plan": null},
+   "expected": {"canonical": "Premera Blue Cross", "plan": null}},
+
+  {"id": "premera_bcbs", "description": "PREMERA BCBS abbreviation maps to Premera Blue Cross",
+   "input": {"raw_payer": "PREMERA BCBS", "raw_plan": null},
+   "expected": {"canonical": "Premera Blue Cross", "plan": null}},
+
+  {"id": "regence_blueshield", "description": "Regence BlueShield maps to Regence BCBS",
+   "input": {"raw_payer": "REGENCE BLUESHIELD", "raw_plan": null},
+   "expected": {"canonical": "Regence Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "regence_bcbs_oregon", "description": "Regence BCBS of Oregon maps to Regence BCBS",
+   "input": {"raw_payer": "REGENCE BCBS OF OREGON", "raw_plan": null},
+   "expected": {"canonical": "Regence Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "ibc_to_independence", "description": "IBC abbreviation maps to Independence Blue Cross",
+   "input": {"raw_payer": "IBC", "raw_plan": null},
+   "expected": {"canonical": "Independence Blue Cross", "plan": null}},
+
+  {"id": "keystone_to_independence", "description": "Keystone Health Plan East maps to Independence Blue Cross",
+   "input": {"raw_payer": "KEYSTONE HEALTH PLAN EAST", "raw_plan": null},
+   "expected": {"canonical": "Independence Blue Cross", "plan": null}},
+
+  {"id": "horizon_bcbs", "description": "Horizon BCBS maps to Horizon BCBS of New Jersey",
+   "input": {"raw_payer": "HORIZON BCBS", "raw_plan": null},
+   "expected": {"canonical": "Horizon Blue Cross Blue Shield of New Jersey", "plan": null}},
+
+  {"id": "horizon_nj", "description": "Horizon NJ abbreviation maps to full name",
+   "input": {"raw_payer": "HORIZON NJ", "raw_plan": null},
+   "expected": {"canonical": "Horizon Blue Cross Blue Shield of New Jersey", "plan": null}},
+
+  {"id": "wellmark_short", "description": "WELLMARK alone maps to Wellmark BCBS",
+   "input": {"raw_payer": "WELLMARK", "raw_plan": null},
+   "expected": {"canonical": "Wellmark Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "wellmark_bcbs", "description": "WELLMARK BCBS abbreviation maps to Wellmark BCBS",
+   "input": {"raw_payer": "WELLMARK BCBS", "raw_plan": null},
+   "expected": {"canonical": "Wellmark Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "upmc_for_life", "description": "UPMC For Life - plan suffix 'Life' extracted",
+   "input": {"raw_payer": "UPMC FOR LIFE", "raw_plan": null},
+   "expected": {"canonical": "UPMC Health Plan", "plan": "Life"}},
+
+  {"id": "upmc_community", "description": "UPMC Community Health Choices maps to UPMC Health Plan",
+   "input": {"raw_payer": "UPMC COMMUNITY HEALTH CHOICES", "raw_plan": null},
+   "expected": {"canonical": "UPMC Health Plan", "plan": null}},
+
+  {"id": "fidelis_care_ny", "description": "Fidelis Care NY maps to Fidelis Care",
+   "input": {"raw_payer": "FIDELIS CARE NY", "raw_plan": null},
+   "expected": {"canonical": "Fidelis Care", "plan": null}},
+
+  {"id": "fidelis_essential_plan", "description": "Fidelis Essential Plan maps to Fidelis Care",
+   "input": {"raw_payer": "FIDELIS ESSENTIAL PLAN", "raw_plan": null},
+   "expected": {"canonical": "Fidelis Care", "plan": null}},
+
+  {"id": "mvp_short", "description": "MVP alone maps to MVP Healthcare",
+   "input": {"raw_payer": "MVP", "raw_plan": null},
+   "expected": {"canonical": "MVP Healthcare", "plan": null}},
+
+  {"id": "mvp_medicaid", "description": "MVP MEDICAID maps to MVP Healthcare",
+   "input": {"raw_payer": "MVP MEDICAID", "raw_plan": null},
+   "expected": {"canonical": "MVP Healthcare", "plan": null}},
+
+  {"id": "caresource_space", "description": "CARE SOURCE (with space) maps to CareSource",
+   "input": {"raw_payer": "CARE SOURCE", "raw_plan": null},
+   "expected": {"canonical": "CareSource", "plan": null}},
+
+  {"id": "caresource_marketplace", "description": "CareSource Marketplace maps to CareSource",
+   "input": {"raw_payer": "CARESOURCE MARKETPLACE", "raw_plan": null},
+   "expected": {"canonical": "CareSource", "plan": null}},
+
+  {"id": "mmo_to_medical_mutual", "description": "MMO abbreviation maps to Medical Mutual of Ohio",
+   "input": {"raw_payer": "MMO", "raw_plan": null},
+   "expected": {"canonical": "Medical Mutual of Ohio", "plan": null}},
+
+  {"id": "med_mutual", "description": "MED MUTUAL maps to Medical Mutual of Ohio",
+   "input": {"raw_payer": "MED MUTUAL", "raw_plan": null},
+   "expected": {"canonical": "Medical Mutual of Ohio", "plan": null}},
+
+  {"id": "supermed_to_medical_mutual", "description": "SuperMed (brand) maps to Medical Mutual of Ohio",
+   "input": {"raw_payer": "SUPERMED", "raw_plan": null},
+   "expected": {"canonical": "Medical Mutual of Ohio", "plan": null}},
+
+  {"id": "medicaid_arizona", "description": "State Medicaid: MEDICAID ARIZONA → Medicaid - Arizona",
+   "input": {"raw_payer": "MEDICAID ARIZONA", "raw_plan": null},
+   "expected": {"canonical": "Medicaid - Arizona", "plan": null}},
+
+  {"id": "az_medicaid", "description": "State Medicaid: AZ MEDICAID abbreviation → Medicaid - Arizona",
+   "input": {"raw_payer": "AZ MEDICAID", "raw_plan": null},
+   "expected": {"canonical": "Medicaid - Arizona", "plan": null}},
+
+  {"id": "tx_medicaid", "description": "State Medicaid: TX MEDICAID → Medicaid - Texas",
+   "input": {"raw_payer": "TX MEDICAID", "raw_plan": null},
+   "expected": {"canonical": "Medicaid - Texas", "plan": null}},
+
+  {"id": "medicaid_florida", "description": "State Medicaid: MEDICAID FLORIDA → Medicaid - Florida",
+   "input": {"raw_payer": "MEDICAID FLORIDA", "raw_plan": null},
+   "expected": {"canonical": "Medicaid - Florida", "plan": null}},
+
+  {"id": "ny_medicaid", "description": "State Medicaid: NY MEDICAID → Medicaid - New York",
+   "input": {"raw_payer": "NY MEDICAID", "raw_plan": null},
+   "expected": {"canonical": "Medicaid - New York", "plan": null}},
+
+  {"id": "medicaid_pending_ma", "description": "State Medicaid: MEDICAID PENDING MA → Medicaid - Massachusetts",
+   "input": {"raw_payer": "MEDICAID PENDING MA", "raw_plan": null},
+   "expected": {"canonical": "Medicaid - Massachusetts", "plan": null}},
+
+  {"id": "dc_medicaid", "description": "State Medicaid: DC MEDICAID → Medicaid - District of Columbia",
+   "input": {"raw_payer": "DC MEDICAID", "raw_plan": null},
+   "expected": {"canonical": "Medicaid - District of Columbia", "plan": null}},
+
+  {"id": "department_of_veterans_affairs_preserve_case", "description": "Department of Veterans Affairs preserves canonical casing",
+   "input": {"raw_payer": "Department of Veterans Affairs", "raw_plan": null},
+   "expected": {"canonical": "Department of Veterans Affairs", "plan": null}},
+
+  {"id": "bcbs_fl_to_florida_blue", "description": "BCBS FL routes to Florida Blue (same company)",
+   "input": {"raw_payer": "BCBS FL", "raw_plan": null},
+   "expected": {"canonical": "Florida Blue", "plan": null}},
+
+  {"id": "bcbs_of_colorado", "description": "State BCBS: BCBS OF COLORADO → Blue Cross Blue Shield of Colorado",
+   "input": {"raw_payer": "BCBS OF COLORADO", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield of Colorado", "plan": null}},
+
+  {"id": "bc_of_nc", "description": "State BCBS: BC OF NC abbreviation → Blue Cross Blue Shield of North Carolina",
+   "input": {"raw_payer": "BC OF NC", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield of North Carolina", "plan": null}},
+
+  {"id": "bcbs_of_louisiana", "description": "State BCBS: BCBS OF LOUISIANA → Blue Cross Blue Shield of Louisiana",
+   "input": {"raw_payer": "BCBS OF LOUISIANA", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield of Louisiana", "plan": null}},
+
+  {"id": "bcbs_michigan_full", "description": "State BCBS: full name maps correctly",
+   "input": {"raw_payer": "BLUE CROSS BLUE SHIELD OF MICHIGAN", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield of Michigan", "plan": null}},
+
+  {"id": "bcbs_of_massachusetts", "description": "BCBS MA bug fix: BCBS OF MASSACHUSETTS maps to MA-specific entity (not Anthem)",
+   "input": {"raw_payer": "BCBS OF MASSACHUSETTS", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield of Massachusetts", "plan": null}},
+
+  {"id": "blue_cross_of_massachusetts", "description": "BCBS MA bug fix: BLUE CROSS OF MASSACHUSETTS maps to MA (not Anthem)",
+   "input": {"raw_payer": "BLUE CROSS OF MASSACHUSETTS", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield of Massachusetts", "plan": null}},
+
+  {"id": "blue_cross_generic", "description": "Generic BLUE CROSS maps to generic Blue Cross Blue Shield (not Anthem)",
+   "input": {"raw_payer": "BLUE CROSS", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "cdm_default_gross_charges", "description": "Garbage cleanup: CDM DEFAULT → Gross Charges",
+   "input": {"raw_payer": "CDM DEFAULT", "raw_plan": null},
+   "expected": {"canonical": "Gross Charges", "plan": null}},
+
+  {"id": "chargemaster_gross_charges", "description": "Garbage cleanup: CHARGEMASTER → Gross Charges",
+   "input": {"raw_payer": "CHARGEMASTER", "raw_plan": null},
+   "expected": {"canonical": "Gross Charges", "plan": null}},
+
+  {"id": "cash_price_estimate", "description": "Garbage cleanup: CASH PRICE ESTIMATE → Cash Price",
+   "input": {"raw_payer": "CASH PRICE ESTIMATE", "raw_plan": null},
+   "expected": {"canonical": "Cash Price", "plan": null}},
+
+  {"id": "selfpay_to_cash_price", "description": "Garbage cleanup: SELFPAY → Cash Price",
+   "input": {"raw_payer": "SELFPAY", "raw_plan": null},
+   "expected": {"canonical": "Cash Price", "plan": null}},
+
+  {"id": "uninsured_selfpay", "description": "Garbage cleanup: UNINSURED/SELF-PAY → Cash Price",
+   "input": {"raw_payer": "UNINSURED/SELF-PAY", "raw_plan": null},
+   "expected": {"canonical": "Cash Price", "plan": null}},
+
+  {"id": "pfc_abbreviation", "description": "Abbreviation: PFC → Patient Financial Communications",
+   "input": {"raw_payer": "PFC", "raw_plan": null},
+   "expected": {"canonical": "Patient Financial Communications", "plan": null}},
+
+  {"id": "ohcp_abbreviation", "description": "Abbreviation: OHCP → Ohio Health Choice",
+   "input": {"raw_payer": "OHCP", "raw_plan": null},
+   "expected": {"canonical": "Ohio Health Choice", "plan": null}},
+
+  {"id": "usamco_abbreviation", "description": "Abbreviation: USAMCO → USA Managed Care",
+   "input": {"raw_payer": "USAMCO", "raw_plan": null},
+   "expected": {"canonical": "USA Managed Care", "plan": null}},
+
+  {"id": "wellpoint_to_anthem", "description": "Wellpoint (former Anthem name) maps to Anthem Blue Cross",
+   "input": {"raw_payer": "WELLPOINT", "raw_plan": null},
+   "expected": {"canonical": "Anthem Blue Cross", "plan": null}},
+
+  {"id": "wellpoint_typo", "description": "Wellpoint typo WELLPOIONT maps to Anthem Blue Cross",
+   "input": {"raw_payer": "WELLPOIONT", "raw_plan": null},
+   "expected": {"canonical": "Anthem Blue Cross", "plan": null}},
+
+  {"id": "elevance_to_anthem", "description": "Elevance Health (Anthem parent co) maps to Anthem Blue Cross",
+   "input": {"raw_payer": "ELEVANCE HEALTH", "raw_plan": null},
+   "expected": {"canonical": "Anthem Blue Cross", "plan": null}},
+
+  {"id": "elevance_short", "description": "ELEVANCE alone maps to Anthem Blue Cross",
+   "input": {"raw_payer": "ELEVANCE", "raw_plan": null},
+   "expected": {"canonical": "Anthem Blue Cross", "plan": null}},
+
+  {"id": "highmark_with_plan_suffix", "description": "Highmark with HMO plan suffix extracts plan",
+   "input": {"raw_payer": "HIGHMARK INC HMO", "raw_plan": null},
+   "expected": {"canonical": "Highmark Blue Cross Blue Shield", "plan": "HMO"}},
+
+  {"id": "caresource_indiana", "description": "CareSource state variant maps to CareSource",
+   "input": {"raw_payer": "CARESOURCE INDIANA", "raw_plan": null},
+   "expected": {"canonical": "CareSource", "plan": null}},
+
+  {"id": "bcbs_slash_generic", "description": "Blue Cross/Blue Shield slash variant maps to generic BCBS",
+   "input": {"raw_payer": "Blue Cross/Blue Shield", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "numeric_only_payer_discarded", "description": "Numeric-only payer labels are discarded",
+   "input": {"raw_payer": "83861934", "raw_plan": null},
+   "expected": {"canonical": null, "plan": null}},
+
+  {"id": "quoted_html_payer", "description": "HTML entities and quote artifacts are cleaned before matching",
+   "input": {"raw_payer": "&quot;Aetna&quot;", "raw_plan": null},
+   "expected": {"canonical": "Aetna", "plan": null}},
+
+  {"id": "alias_key_artifact_shape", "description": "Alias cache key cleanup shape handles quotes and underscores",
+   "input": {"raw_payer": "\"Blue_Cross/Blue_Shield\"", "raw_plan": null},
+   "expected": {"canonical": "Blue Cross Blue Shield", "plan": null}},
+
+  {"id": "contract_status_suffix_healthlink", "description": "Contracted suffix stripped when base payer is recognizable",
+   "input": {"raw_payer": "Healthlink Contracted", "raw_plan": null},
+   "expected": {"canonical": "HealthLink", "plan": null}},
+
+  {"id": "hospital_prefix_pro_concat_uhc", "description": "Source prefix plus concatenated UHC commercial string maps payer and plan",
+   "input": {"raw_payer": "PRO Uhccommercial", "raw_plan": null},
+   "expected": {"canonical": "United Healthcare", "plan": "Commercial"}},
+
+  {"id": "concat_aetna_commercial", "description": "Concatenated payer+plan string extracts payer and plan",
+   "input": {"raw_payer": "AetnaCommercial", "raw_plan": null},
+   "expected": {"canonical": "Aetna", "plan": "Commercial"}},
+
+  {"id": "existing_plan_preserved_concat", "description": "Existing plan is preserved for concatenated payer+plan labels",
+   "input": {"raw_payer": "Uhccommercial", "raw_plan": "Hospital Plan"},
+   "expected": {"canonical": "United Healthcare", "plan": "Hospital Plan"}},
+
+  {"id": "web_tpa_hyphen", "description": "Web-TPA punctuation variant maps to WebTPA",
+   "input": {"raw_payer": "Web-Tpa", "raw_plan": null},
+   "expected": {"canonical": "WebTPA", "plan": null}},
+
+  {"id": "mclaren_healthplan", "description": "McLaren Healthplan spacing variant maps to McLaren Health Plan",
+   "input": {"raw_payer": "Mclaren Healthplan", "raw_plan": null},
+   "expected": {"canonical": "McLaren Health Plan", "plan": null}},
+
+  {"id": "workers_compensation_canonical", "description": "Workers Compensation maps to canonical Workers' Comp",
+   "input": {"raw_payer": "Workers Compensation", "raw_plan": null},
+   "expected": {"canonical": "Workers' Comp", "plan": null}},
+
+  {"id": "junk_rate_decimal", "description": "Decimal rate value rejected as payer",
+   "input": {"raw_payer": "27.07", "raw_plan": null},
+   "expected": {"canonical": null, "plan": null}},
+
+  {"id": "junk_rate_decimal_large", "description": "Large decimal rate value rejected as payer",
+   "input": {"raw_payer": "147.05", "raw_plan": null},
+   "expected": {"canonical": null, "plan": null}},
+
+  {"id": "junk_rate_quoted_decimal", "description": "Quoted decimal rate value rejected as payer",
+   "input": {"raw_payer": "\"27.07\"", "raw_plan": null},
+   "expected": {"canonical": null, "plan": null}},
+
+  {"id": "junk_punct_only_hash", "description": "Punctuation-only hash rejected as payer",
+   "input": {"raw_payer": "#", "raw_plan": null},
+   "expected": {"canonical": null, "plan": null}},
+
+  {"id": "junk_punct_only_dash", "description": "Punctuation-only dashes rejected as payer",
+   "input": {"raw_payer": "--", "raw_plan": null},
+   "expected": {"canonical": null, "plan": null}},
+
+  {"id": "junk_integer_only", "description": "Bare integer rejected as payer",
+   "input": {"raw_payer": "1199", "raw_plan": null},
+   "expected": {"canonical": null, "plan": null}},
+
+  {"id": "legit_1199_seiu", "description": "1199 SEIU with alphabetic context preserved",
+   "input": {"raw_payer": "1199 SEIU", "raw_plan": null},
+   "expected": {"canonical": "1199 Seiu", "plan": null}},
+
+  {"id": "legit_local_104", "description": "Local 104 union payer preserved",
+   "input": {"raw_payer": "Local 104", "raw_plan": null},
+   "expected": {"canonical": "Local 104", "plan": null}}
+]

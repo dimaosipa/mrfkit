@@ -1,0 +1,1533 @@
+[
+  {
+    "id": "none_none",
+    "description": "Both code and code_type are None → pass through",
+    "input": {"code": null, "code_type": null},
+    "expected": {"code": null, "code_type": null}
+  },
+  {
+    "id": "empty_empty",
+    "description": "Both code and code_type are empty strings",
+    "input": {"code": "", "code_type": ""},
+    "expected": {"code": "", "code_type": ""}
+  },
+  {
+    "id": "none_code_with_type",
+    "description": "None code but valid code_type → early return (no code to normalize)",
+    "input": {"code": null, "code_type": "CPT"},
+    "expected": {"code": null, "code_type": "CPT"}
+  },
+
+  {"id": "--- STEP 1: code_type canonicalization ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "code_type_cpt4_to_cpt",
+    "description": "CPT4 synonym normalizes to CPT",
+    "input": {"code": "99213", "code_type": "CPT4"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_cpt_dash_4_to_cpt",
+    "description": "CPT-4 synonym normalizes to CPT",
+    "input": {"code": "99213", "code_type": "CPT-4"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_rev_to_rc",
+    "description": "REV normalizes to RC",
+    "input": {"code": "0250", "code_type": "REV"},
+    "expected": {"code": "0250", "code_type": "RC"}
+  },
+  {
+    "id": "code_type_revenue_to_rc",
+    "description": "REVENUE normalizes to RC",
+    "input": {"code": "0300", "code_type": "REVENUE"},
+    "expected": {"code": "0300", "code_type": "RC"}
+  },
+  {
+    "id": "code_type_revenue_code_to_rc",
+    "description": "REVENUE CODE normalizes to RC",
+    "input": {"code": "0300", "code_type": "REVENUE CODE"},
+    "expected": {"code": "0300", "code_type": "RC"}
+  },
+  {
+    "id": "code_type_revcode_to_rc",
+    "description": "REVCODE normalizes to RC",
+    "input": {"code": "0300", "code_type": "REVCODE"},
+    "expected": {"code": "0300", "code_type": "RC"}
+  },
+  {
+    "id": "code_type_msdrg_to_ms_drg",
+    "description": "MSDRG normalizes to MS-DRG",
+    "input": {"code": "470", "code_type": "MSDRG"},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "code_type_drg_to_ms_drg",
+    "description": "DRG normalizes to MS-DRG",
+    "input": {"code": "470", "code_type": "DRG"},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "code_type_tris_drg_to_ms_drg",
+    "description": "TRIS-DRG (Tenet Revenue Integrity System) normalizes to MS-DRG",
+    "input": {"code": "470", "code_type": "TRIS-DRG"},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "code_type_apr_drg_stays_apr_drg",
+    "description": "APR-DRG is a distinct code system, not normalized to MS-DRG",
+    "input": {"code": "001-1", "code_type": "APR-DRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "code_type_aprdrg_to_apr_drg",
+    "description": "APRDRG synonym normalizes to APR-DRG",
+    "input": {"code": "001-1", "code_type": "APRDRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "code_type_apr_drg_spaced_to_apr_drg",
+    "description": "APR DRG synonym normalizes to APR-DRG",
+    "input": {"code": "001-1", "code_type": "APR DRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "code_type_apr_drg_underscore_to_apr_drg",
+    "description": "APR_DRG synonym normalizes to APR-DRG",
+    "input": {"code": "001-1", "code_type": "APR_DRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "code_type_hcpcs_level_ii_to_hcpcs",
+    "description": "HCPCS LEVEL II normalizes to HCPCS",
+    "input": {"code": "J0690", "code_type": "HCPCS LEVEL II"},
+    "expected": {"code": "J0690", "code_type": "HCPCS"}
+  },
+  {
+    "id": "code_type_hcpcs2_to_hcpcs",
+    "description": "HCPCS2 normalizes to HCPCS",
+    "input": {"code": "J0690", "code_type": "HCPCS2"},
+    "expected": {"code": "J0690", "code_type": "HCPCS"}
+  },
+  {
+    "id": "code_type_cpt_slash_hcpcs_with_cpt_code",
+    "description": "CPT/HCPCS hedge with 5-digit numeric → CPT (disambiguated by code shape)",
+    "input": {"code": "99213", "code_type": "CPT/HCPCS"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_cpt_slash_hcpcs_with_hcpcs_code",
+    "description": "CPT/HCPCS hedge with letter+4-digit code → HCPCS (disambiguated by code shape)",
+    "input": {"code": "J0591", "code_type": "CPT/HCPCS"},
+    "expected": {"code": "J0591", "code_type": "HCPCS"}
+  },
+  {
+    "id": "code_type_hcpcs_slash_cpt_with_cpt_code",
+    "description": "HCPCS/CPT (reversed order) with 5-digit numeric → CPT",
+    "input": {"code": "27447", "code_type": "HCPCS/CPT"},
+    "expected": {"code": "27447", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_cpt_slash_hcpcs_spaced",
+    "description": "CPT / HCPCS with spaces around slash normalizes then disambiguates",
+    "input": {"code": "70551", "code_type": "CPT / HCPCS"},
+    "expected": {"code": "70551", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_cpt_dash_hcpcs_with_cdt_code",
+    "description": "CPT-HCPCS hedge with D-prefix code → CDT (dental takes precedence)",
+    "input": {"code": "D0120", "code_type": "CPT-HCPCS"},
+    "expected": {"code": "D0120", "code_type": "CDT"}
+  },
+  {
+    "id": "code_type_chargemaster_to_cdm",
+    "description": "CHARGEMASTER normalizes to CDM",
+    "input": {"code": "12345678", "code_type": "CHARGEMASTER"},
+    "expected": {"code": "12345678", "code_type": "CDM"}
+  },
+  {
+    "id": "code_type_cdt_stays_cdt",
+    "description": "CDT code_type is recognized and preserved",
+    "input": {"code": "D7509", "code_type": "CDT"},
+    "expected": {"code": "D7509", "code_type": "CDT"}
+  },
+  {
+    "id": "code_type_dental_to_cdt",
+    "description": "DENTAL synonym normalizes to CDT",
+    "input": {"code": "D0120", "code_type": "DENTAL"},
+    "expected": {"code": "D0120", "code_type": "CDT"}
+  },
+  {
+    "id": "code_type_case_insensitive",
+    "description": "Code type normalization is case-insensitive",
+    "input": {"code": "99213", "code_type": "hcpcs"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_mixed_case",
+    "description": "Mixed case code_type is normalized",
+    "input": {"code": "27447", "code_type": "Hcpcs"},
+    "expected": {"code": "27447", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_with_whitespace",
+    "description": "Code type with leading/trailing whitespace",
+    "input": {"code": "  70551  ", "code_type": " HCPCS "},
+    "expected": {"code": "70551", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_unknown_passes_through",
+    "description": "Unknown code_type is uppercased and passed through",
+    "input": {"code": "XYZ", "code_type": "CUSTOM"},
+    "expected": {"code": "XYZ", "code_type": "CUSTOM"}
+  },
+
+  {"id": "--- STEP 2: hospital-internal CDM prefixes ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "sup_prefix_cdm",
+    "description": "SUP- prefix detected as CDM (supplies)",
+    "input": {"code": "SUP-12345", "code_type": "HCPCS"},
+    "expected": {"code": "SUP-12345", "code_type": "CDM"}
+  },
+  {
+    "id": "px_prefix_cdm",
+    "description": "PX- prefix detected as CDM (procedures)",
+    "input": {"code": "PX-0099", "code_type": null},
+    "expected": {"code": "PX-0099", "code_type": "CDM"}
+  },
+  {
+    "id": "rx_prefix_cdm",
+    "description": "RX- prefix detected as CDM (pharmacy)",
+    "input": {"code": "RX-ASPIRIN", "code_type": "HCPCS"},
+    "expected": {"code": "RX-ASPIRIN", "code_type": "CDM"}
+  },
+
+  {"id": "--- STEP 2b: standard-shape codes mislabeled CDM/LOCAL ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "cdm_five_digit_becomes_cpt",
+    "description": "5-digit CPT code mislabeled CDM reclassifies to CPT",
+    "input": {"code": "99213", "code_type": "CDM"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "local_five_digit_becomes_cpt",
+    "description": "5-digit CPT code mislabeled LOCAL reclassifies to CPT",
+    "input": {"code": "70551", "code_type": "LOCAL"},
+    "expected": {"code": "70551", "code_type": "CPT"}
+  },
+  {
+    "id": "cdm_cat3_becomes_cpt",
+    "description": "CPT suffix code mislabeled CDM reclassifies to CPT",
+    "input": {"code": "0237T", "code_type": "CDM"},
+    "expected": {"code": "0237T", "code_type": "CPT"}
+  },
+  {
+    "id": "cdm_hcpcs_letter_becomes_hcpcs",
+    "description": "HCPCS Level II code mislabeled CDM reclassifies to HCPCS",
+    "input": {"code": "J1580", "code_type": "CDM"},
+    "expected": {"code": "J1580", "code_type": "HCPCS"}
+  },
+  {
+    "id": "local_hcpcs_letter_becomes_hcpcs",
+    "description": "HCPCS Level II code mislabeled LOCAL reclassifies to HCPCS",
+    "input": {"code": "Q5128", "code_type": "LOCAL"},
+    "expected": {"code": "Q5128", "code_type": "HCPCS"}
+  },
+  {
+    "id": "local_d_prefix_becomes_cdt",
+    "description": "CDT dental code mislabeled LOCAL reclassifies to CDT",
+    "input": {"code": "D0120", "code_type": "LOCAL"},
+    "expected": {"code": "D0120", "code_type": "CDT"}
+  },
+  {
+    "id": "local_explicit_px_prefix_stays_cdm",
+    "description": "Explicit hospital PX- prefix remains CDM despite LOCAL label",
+    "input": {"code": "PX-0099", "code_type": "LOCAL"},
+    "expected": {"code": "PX-0099", "code_type": "CDM"}
+  },
+  {
+    "id": "local_bare_four_digit_not_apc",
+    "description": "Bare 4-digit LOCAL value is ambiguous and not inferred as APC",
+    "input": {"code": "5191", "code_type": "LOCAL"},
+    "expected": {"code": "5191", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_bare_three_digit_not_ms_drg",
+    "description": "Bare 3-digit LOCAL value is ambiguous and not inferred as MS-DRG",
+    "input": {"code": "470", "code_type": "LOCAL"},
+    "expected": {"code": "470", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_bare_four_digit_revenue_not_rc",
+    "description": "Bare 4-digit LOCAL revenue-code-like value is ambiguous and not inferred as RC",
+    "input": {"code": "0450", "code_type": "LOCAL"},
+    "expected": {"code": "0450", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_bare_apr_drg_not_apr_drg",
+    "description": "Bare APR-DRG-shaped LOCAL value is ambiguous and not inferred as APR-DRG",
+    "input": {"code": "001-1", "code_type": "LOCAL"},
+    "expected": {"code": "001-1", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_prefixed_apc_becomes_apc",
+    "description": "Prefixed APC code embedded in LOCAL is safe to reclassify",
+    "input": {"code": "APC 5191", "code_type": "LOCAL"},
+    "expected": {"code": "5191", "code_type": "APC"}
+  },
+  {
+    "id": "local_prefixed_ms_drg_becomes_ms_drg",
+    "description": "Prefixed MS-DRG code embedded in LOCAL is safe to reclassify",
+    "input": {"code": "MS-DRG 470", "code_type": "LOCAL"},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "local_attached_drg_becomes_ms_drg",
+    "description": "Attached DRG prefix in LOCAL is safe to reclassify",
+    "input": {"code": "DRG100", "code_type": "LOCAL"},
+    "expected": {"code": "100", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "local_attached_ms_drg_becomes_ms_drg",
+    "description": "Attached MS-DRG prefix in LOCAL is safe to reclassify",
+    "input": {"code": "MS-DRG470", "code_type": "LOCAL"},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "local_attached_apc_becomes_apc",
+    "description": "Attached APC prefix in LOCAL is safe to reclassify",
+    "input": {"code": "APC5191", "code_type": "LOCAL"},
+    "expected": {"code": "5191", "code_type": "APC"}
+  },
+  {
+    "id": "local_attached_rc_becomes_rc",
+    "description": "Attached RC prefix in LOCAL is safe to reclassify and zero-pad",
+    "input": {"code": "RC450", "code_type": "LOCAL"},
+    "expected": {"code": "0450", "code_type": "RC"}
+  },
+  {
+    "id": "local_attached_ndc_dashed_becomes_ndc",
+    "description": "Attached NDC prefix in LOCAL is safe to reclassify and canonicalize",
+    "input": {"code": "NDC12345-6789-01", "code_type": "LOCAL"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "local_attached_ndc_11_digit_becomes_ndc",
+    "description": "Attached NDC prefix with canonical value in LOCAL is safe to reclassify",
+    "input": {"code": "NDC12345678901", "code_type": "LOCAL"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "local_attached_cpt_becomes_cpt",
+    "description": "Attached CPT prefix in LOCAL is safe to reclassify",
+    "input": {"code": "CPT99213", "code_type": "LOCAL"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "local_attached_hcpcs_becomes_hcpcs",
+    "description": "Attached HCPCS prefix in LOCAL is safe to reclassify",
+    "input": {"code": "HCPCSC1776", "code_type": "LOCAL"},
+    "expected": {"code": "C1776", "code_type": "HCPCS"}
+  },
+  {
+    "id": "local_attached_cdt_becomes_cdt",
+    "description": "Attached CDT prefix in LOCAL is safe to reclassify",
+    "input": {"code": "CDTD0120", "code_type": "LOCAL"},
+    "expected": {"code": "D0120", "code_type": "CDT"}
+  },
+  {
+    "id": "local_attached_aprdrg_becomes_apr_drg",
+    "description": "Attached APRDRG prefix in LOCAL is safe to reclassify",
+    "input": {"code": "APRDRG0011", "code_type": "LOCAL"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "local_prefixed_cdt_becomes_cdt",
+    "description": "Prefixed CDT code embedded in LOCAL is safe to reclassify",
+    "input": {"code": "CDT D0120", "code_type": "LOCAL"},
+    "expected": {"code": "D0120", "code_type": "CDT"}
+  },
+  {
+    "id": "local_prefixed_apr_drg_becomes_apr_drg",
+    "description": "Prefixed APR-DRG code embedded in LOCAL is safe to reclassify and strip qualifiers",
+    "input": {"code": "APR-DRG 001-1 Short Stay", "code_type": "LOCAL"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "local_prefixed_aprdrg_becomes_apr_drg",
+    "description": "APRDRG composite prefix embedded in LOCAL is safe to reclassify",
+    "input": {"code": "APRDRG 0011", "code_type": "LOCAL"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "local_prefixed_apr_spaced_drg_becomes_apr_drg",
+    "description": "APR DRG composite prefix embedded in LOCAL is safe to reclassify",
+    "input": {"code": "APR DRG 001 - 2", "code_type": "LOCAL"},
+    "expected": {"code": "001-2", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "local_prefixed_revenue_code_becomes_rc",
+    "description": "Revenue Code composite prefix embedded in LOCAL is safe to reclassify and zero-pad",
+    "input": {"code": "REVENUE CODE 450", "code_type": "LOCAL"},
+    "expected": {"code": "0450", "code_type": "RC"}
+  },
+  {
+    "id": "local_invalid_prefixed_cdt_stays_local",
+    "description": "Invalid CDT-prefixed LOCAL text is not promoted to standard metadata",
+    "input": {"code": "CDT TOTAL", "code_type": "LOCAL"},
+    "expected": {"code": "CDT TOTAL", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_invalid_prefixed_aprdrg_stays_local",
+    "description": "Invalid APRDRG-prefixed LOCAL text is not promoted to APR-DRG",
+    "input": {"code": "APRDRG TOTAL", "code_type": "LOCAL"},
+    "expected": {"code": "APRDRG TOTAL", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_invalid_prefixed_revenue_code_stays_local",
+    "description": "Invalid revenue-code-prefixed LOCAL text is not promoted to RC",
+    "input": {"code": "REVENUE CODE TOTAL", "code_type": "LOCAL"},
+    "expected": {"code": "REVENUE CODE TOTAL", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_supply_infix_drg_stays_cdm",
+    "description": "Internal supply code containing DRG as an infix is not promoted",
+    "input": {"code": "SUP-D224DRG", "code_type": "LOCAL"},
+    "expected": {"code": "SUP-D224DRG", "code_type": "CDM"}
+  },
+  {
+    "id": "local_supply_infix_apc_stays_cdm",
+    "description": "Internal supply code containing APC as an infix is not promoted",
+    "input": {"code": "SUP-APC-120", "code_type": "LOCAL"},
+    "expected": {"code": "SUP-APC-120", "code_type": "CDM"}
+  },
+  {
+    "id": "local_msdsg_typo_report_only_stays_local",
+    "description": "MS-DSG typo is report-only and not auto-promoted",
+    "input": {"code": "MS-DSG100", "code_type": "LOCAL"},
+    "expected": {"code": "MS-DSG100", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_icd10_cm_report_only_stays_local",
+    "description": "ICD-10-CM is report-only and not auto-promoted",
+    "input": {"code": "ICD-10-CM Z12.11", "code_type": "LOCAL"},
+    "expected": {"code": "ICD-10-CM Z12.11", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_icd10_pcs_report_only_stays_local",
+    "description": "ICD-10-PCS is report-only and not auto-promoted",
+    "input": {"code": "ICD-10-PCS 0WQF0ZZ", "code_type": "LOCAL"},
+    "expected": {"code": "ICD-10-PCS 0WQF0ZZ", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_eapg_report_only_stays_local",
+    "description": "EAPG is report-only and not auto-promoted",
+    "input": {"code": "EAPG1234", "code_type": "LOCAL"},
+    "expected": {"code": "EAPG1234", "code_type": "LOCAL"}
+  },
+  {
+    "id": "local_hipps_report_only_stays_local",
+    "description": "HIPPS is report-only and not auto-promoted",
+    "input": {"code": "HIPPS1AA11", "code_type": "LOCAL"},
+    "expected": {"code": "HIPPS1AA11", "code_type": "LOCAL"}
+  },
+
+  {"id": "--- STEP 3: misclassified revenue codes ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "known_rc_from_hcpcs",
+    "description": "Known revenue code (0250) misclassified as HCPCS → RC",
+    "input": {"code": "0250", "code_type": "HCPCS"},
+    "expected": {"code": "0250", "code_type": "RC"}
+  },
+  {
+    "id": "known_rc_3digit_from_hcpcs",
+    "description": "3-digit known revenue code misclassified as HCPCS → RC (then zero-padded)",
+    "input": {"code": "250", "code_type": "HCPCS"},
+    "expected": {"code": "0250", "code_type": "RC"}
+  },
+  {
+    "id": "known_rc_no_code_type",
+    "description": "Known revenue code with no code_type → RC",
+    "input": {"code": "0272", "code_type": null},
+    "expected": {"code": "0272", "code_type": "RC"}
+  },
+  {
+    "id": "long_numeric_hcpcs_is_cdm",
+    "description": "6+ digit numeric code labeled HCPCS is really CDM",
+    "input": {"code": "123456", "code_type": "HCPCS"},
+    "expected": {"code": "123456", "code_type": "CDM"}
+  },
+  {
+    "id": "long_numeric_cpt_is_cdm",
+    "description": "6+ digit numeric code labeled CPT is really CDM",
+    "input": {"code": "999999", "code_type": "CPT"},
+    "expected": {"code": "999999", "code_type": "CDM"}
+  },
+
+  {"id": "--- STEP 3b: HCPCS Level I → CPT ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "five_digit_hcpcs_becomes_cpt",
+    "description": "5-digit numeric code labeled HCPCS → CPT (HCPCS Level I ≡ CPT)",
+    "input": {"code": "70551", "code_type": "HCPCS"},
+    "expected": {"code": "70551", "code_type": "CPT"}
+  },
+  {
+    "id": "cpt_stays_cpt",
+    "description": "Code already labeled CPT stays CPT",
+    "input": {"code": "70551", "code_type": "CPT"},
+    "expected": {"code": "70551", "code_type": "CPT"}
+  },
+  {
+    "id": "j_code_stays_hcpcs",
+    "description": "HCPCS Level II J-code (letter prefix) stays HCPCS",
+    "input": {"code": "J0690", "code_type": "HCPCS"},
+    "expected": {"code": "J0690", "code_type": "HCPCS"}
+  },
+  {
+    "id": "a_code_stays_hcpcs",
+    "description": "HCPCS Level II A-code stays HCPCS",
+    "input": {"code": "A4550", "code_type": "HCPCS"},
+    "expected": {"code": "A4550", "code_type": "HCPCS"}
+  },
+  {
+    "id": "c_code_stays_hcpcs",
+    "description": "HCPCS Level II C-code stays HCPCS",
+    "input": {"code": "C1776", "code_type": "HCPCS"},
+    "expected": {"code": "C1776", "code_type": "HCPCS"}
+  },
+
+  {"id": "--- STEP 3c: D-prefix dental codes → CDT ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "d_code_hcpcs_becomes_cdt",
+    "description": "D-prefix code labeled HCPCS reclassified to CDT (dental code)",
+    "input": {"code": "D7509", "code_type": "HCPCS"},
+    "expected": {"code": "D7509", "code_type": "CDT"}
+  },
+  {
+    "id": "d_code_cpt_becomes_cdt",
+    "description": "D-prefix code labeled CPT reclassified to CDT",
+    "input": {"code": "D0120", "code_type": "CPT"},
+    "expected": {"code": "D0120", "code_type": "CDT"}
+  },
+  {
+    "id": "d_code_lowercase_hcpcs_becomes_cdt",
+    "description": "Lowercase d-prefix code labeled HCPCS reclassified to CDT",
+    "input": {"code": "d0120", "code_type": "HCPCS"},
+    "expected": {"code": "d0120", "code_type": "CDT"}
+  },
+  {
+    "id": "d_code_already_cdt_unchanged",
+    "description": "D-code already typed CDT is unchanged",
+    "input": {"code": "D7509", "code_type": "CDT"},
+    "expected": {"code": "D7509", "code_type": "CDT"}
+  },
+
+  {"id": "--- STEP 5.6: HCPCS Level II forward fix (letter-prefix mislabeled CPT) ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "q_code_cpt_becomes_hcpcs",
+    "description": "Q-code (Q5128 biosimilar) labeled CPT reclassified to HCPCS Level II",
+    "input": {"code": "Q5128", "code_type": "CPT"},
+    "expected": {"code": "Q5128", "code_type": "HCPCS"}
+  },
+  {
+    "id": "j_code_cpt_becomes_hcpcs",
+    "description": "J-code (J7192 ADVATE) labeled CPT reclassified to HCPCS Level II",
+    "input": {"code": "J7192", "code_type": "CPT"},
+    "expected": {"code": "J7192", "code_type": "HCPCS"}
+  },
+  {
+    "id": "a_code_cpt_becomes_hcpcs",
+    "description": "A-code (A0428 ambulance) labeled CPT reclassified to HCPCS Level II",
+    "input": {"code": "A0428", "code_type": "CPT"},
+    "expected": {"code": "A0428", "code_type": "HCPCS"}
+  },
+  {
+    "id": "v_code_cpt_becomes_hcpcs",
+    "description": "V-code (V2020 vision) labeled CPT reclassified to HCPCS Level II",
+    "input": {"code": "V2020", "code_type": "CPT"},
+    "expected": {"code": "V2020", "code_type": "HCPCS"}
+  },
+  {
+    "id": "lowercase_q_code_cpt_becomes_hcpcs",
+    "description": "Lowercase q-code labeled CPT reclassified to HCPCS",
+    "input": {"code": "q5128", "code_type": "cpt"},
+    "expected": {"code": "q5128", "code_type": "HCPCS"}
+  },
+  {
+    "id": "q_code_already_hcpcs_unchanged",
+    "description": "Q-code already typed HCPCS is unchanged",
+    "input": {"code": "Q5128", "code_type": "HCPCS"},
+    "expected": {"code": "Q5128", "code_type": "HCPCS"}
+  },
+  {
+    "id": "d_code_cpt_excluded_from_hcpcs_fix",
+    "description": "D-prefix code routed to CDT by Step 5.5, not flipped to HCPCS by Step 5.6",
+    "input": {"code": "D0120", "code_type": "CPT"},
+    "expected": {"code": "D0120", "code_type": "CDT"}
+  },
+
+  {"id": "--- STEP 5.7: CPT Cat II/III/PLA reverse fix (\\d{4}[FTU] mislabeled HCPCS) ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "cat2_f_hcpcs_becomes_cpt",
+    "description": "Cat II code (1036F) labeled HCPCS reclassified to CPT",
+    "input": {"code": "1036F", "code_type": "HCPCS"},
+    "expected": {"code": "1036F", "code_type": "CPT"}
+  },
+  {
+    "id": "cat3_t_hcpcs_becomes_cpt",
+    "description": "Cat III code (0001T) labeled HCPCS reclassified to CPT",
+    "input": {"code": "0001T", "code_type": "HCPCS"},
+    "expected": {"code": "0001T", "code_type": "CPT"}
+  },
+  {
+    "id": "pla_u_hcpcs_becomes_cpt",
+    "description": "PLA code (0016U) labeled HCPCS reclassified to CPT",
+    "input": {"code": "0016U", "code_type": "HCPCS"},
+    "expected": {"code": "0016U", "code_type": "CPT"}
+  },
+  {
+    "id": "cat2_f_already_cpt_unchanged",
+    "description": "Cat II code already typed CPT is unchanged",
+    "input": {"code": "1036F", "code_type": "CPT"},
+    "expected": {"code": "1036F", "code_type": "CPT"}
+  },
+  {
+    "id": "cat3_t_lowercase_hcpcs_becomes_cpt",
+    "description": "Lowercase Cat III code labeled HCPCS reclassified to CPT",
+    "input": {"code": "0001t", "code_type": "HCPCS"},
+    "expected": {"code": "0001t", "code_type": "CPT"}
+  },
+  {
+    "id": "cat2_f_null_type_becomes_cpt",
+    "description": "Cat II code with no code_type declared classifies as CPT",
+    "input": {"code": "1036F", "code_type": null},
+    "expected": {"code": "1036F", "code_type": "CPT"}
+  },
+  {
+    "id": "cat3_t_null_type_becomes_cpt",
+    "description": "Cat III code with no code_type declared classifies as CPT",
+    "input": {"code": "0001T", "code_type": null},
+    "expected": {"code": "0001T", "code_type": "CPT"}
+  },
+  {
+    "id": "pla_u_null_type_becomes_cpt",
+    "description": "PLA code with no code_type declared classifies as CPT",
+    "input": {"code": "0016U", "code_type": null},
+    "expected": {"code": "0016U", "code_type": "CPT"}
+  },
+
+  {"id": "--- STEP 4: Revenue code zero-padding ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "rc_zero_padded_3digit",
+    "description": "3-digit revenue code zero-padded to 4 digits",
+    "input": {"code": "250", "code_type": "RC"},
+    "expected": {"code": "0250", "code_type": "RC"}
+  },
+  {
+    "id": "rc_already_4digit",
+    "description": "4-digit revenue code unchanged",
+    "input": {"code": "0250", "code_type": "RC"},
+    "expected": {"code": "0250", "code_type": "RC"}
+  },
+  {
+    "id": "rc_1digit",
+    "description": "1-digit revenue code zero-padded to 4 digits",
+    "input": {"code": "1", "code_type": "RC"},
+    "expected": {"code": "0001", "code_type": "RC"}
+  },
+
+  {"id": "--- STEP 7: NDC normalization ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "ndc_canonical_unchanged",
+    "description": "Already-canonical 11-digit NDC preserved",
+    "input": {"code": "12345678901", "code_type": "NDC"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_3seg_canonicalized",
+    "description": "3-segment dashed NDC (5-4-2) canonicalized to 11-digit no-dash",
+    "input": {"code": "12345-6789-01", "code_type": "NDC"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_3seg_whitespace_stripped",
+    "description": "3-segment dashed NDC with whitespace stripped then canonicalized",
+    "input": {"code": "  12345-6789-01  ", "code_type": "NDC"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_3seg_short_segments_zero_padded",
+    "description": "3-segment NDC with shorter segments (4-3-1) zero-padded per segment to canonical 5-4-2",
+    "input": {"code": "1234-567-8", "code_type": "NDC"},
+    "expected": {"code": "01234056708", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_9digit_padded",
+    "description": "9-digit all-numeric NDC padded with '00' to 11 digits",
+    "input": {"code": "123456789", "code_type": "NDC"},
+    "expected": {"code": "00123456789", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_bare_10digit_padded",
+    "description": "Bare dash-less 10-digit NDC10 padded with leading '0' to canonical 11",
+    "input": {"code": "1234567890", "code_type": "NDC"},
+    "expected": {"code": "01234567890", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_pkg_setting_double_suffix_stripped",
+    "description": "NDC with _<digits>_<setting> package+setting double suffix stripped, 11-digit base preserved",
+    "input": {"code": "39822105505_4_ip", "code_type": "NDC"},
+    "expected": {"code": "39822105505", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_pkg_setting_double_suffix_10digit_padded",
+    "description": "NDC with _<digits>_<setting> double suffix on a 10-digit base padded with leading '0'",
+    "input": {"code": "1672905260_2_op", "code_type": "NDC"},
+    "expected": {"code": "01672905260", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_setting_suffix_ip_stripped",
+    "description": "NDC with _ip setting suffix stripped, base canonicalized",
+    "input": {"code": "12345678901_ip", "code_type": "NDC"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_setting_suffix_op_10digit_padded",
+    "description": "NDC with _op suffix on 10-digit base padded with leading 0",
+    "input": {"code": "1234567890_op", "code_type": "NDC"},
+    "expected": {"code": "01234567890", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_trailing_letter_stripped",
+    "description": "NDC with single trailing letter stripped",
+    "input": {"code": "12345678901A", "code_type": "NDC"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_pkg_digit_suffix_stripped",
+    "description": "NDC with _<digits> package suffix stripped",
+    "input": {"code": "12345678901_50", "code_type": "NDC"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_3seg_alpha_packaging_suffix",
+    "description": "3-segment NDC with alpha packaging suffix (RL1) digit-stripped to 11",
+    "input": {"code": "12345-6789-01RL1", "code_type": "NDC"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_leading_letter_reclassified_local",
+    "description": "NDC starting with ASCII letter reclassified to LOCAL",
+    "input": {"code": "A123456789", "code_type": "NDC"},
+    "expected": {"code": "A123456789", "code_type": "LOCAL"}
+  },
+  {
+    "id": "ndc_3seg_empty_seg3_left_alone",
+    "description": "3-segment NDC with truly-empty seg3 (regex requires 1-2 digits) does not match - left as-is",
+    "input": {"code": "12345-6789-", "code_type": "NDC"},
+    "expected": {"code": "12345-6789-", "code_type": "NDC"}
+  },
+
+  {"id": "--- STEP 6: code_type inference ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "infer_cpt_from_5digit",
+    "description": "5-digit numeric code with no code_type → CPT",
+    "input": {"code": "70551", "code_type": null},
+    "expected": {"code": "70551", "code_type": "CPT"}
+  },
+  {
+    "id": "infer_hcpcs_from_letter_prefix",
+    "description": "Non-D letter+4 digits with no code_type → HCPCS",
+    "input": {"code": "J0690", "code_type": null},
+    "expected": {"code": "J0690", "code_type": "HCPCS"}
+  },
+  {
+    "id": "infer_cdt_from_d_prefix",
+    "description": "D+4 digits with no code_type → CDT (dental code)",
+    "input": {"code": "D7509", "code_type": null},
+    "expected": {"code": "D7509", "code_type": "CDT"}
+  },
+  {
+    "id": "infer_cdt_from_lowercase_d",
+    "description": "Lowercase d+4 digits with no code_type → CDT",
+    "input": {"code": "d0120", "code_type": null},
+    "expected": {"code": "d0120", "code_type": "CDT"}
+  },
+  {
+    "id": "infer_hcpcs_category_iii",
+    "description": "Category III CPT code (4 digits + T) with no declared type classifies as CPT (Cat III is CPT by definition)",
+    "input": {"code": "0237T", "code_type": null},
+    "expected": {"code": "0237T", "code_type": "CPT"}
+  },
+  {
+    "id": "infer_ndc_from_dashes",
+    "description": "Digit-dash pattern inferred as NDC, then canonicalized to 11-digit no-dash",
+    "input": {"code": "12345-6789-01", "code_type": null},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "infer_3digit_known_rc",
+    "description": "3-digit code 470 is in _KNOWN_REVENUE_CODES - detected as RC and zero-padded",
+    "input": {"code": "470", "code_type": null},
+    "expected": {"code": "0470", "code_type": "RC"}
+  },
+  {
+    "id": "infer_3digit_ambiguous_no_guess",
+    "description": "3-digit code NOT in _KNOWN_REVENUE_CODES - ambiguous, no inference",
+    "input": {"code": "999", "code_type": null},
+    "expected": {"code": "999", "code_type": null}
+  },
+  {
+    "id": "infer_none_for_text_code",
+    "description": "Alphabetic code with no code_type - no inference possible",
+    "input": {"code": "CUSTOM-CODE", "code_type": null},
+    "expected": {"code": "CUSTOM-CODE", "code_type": null}
+  },
+
+  {"id": "--- STEP 1: non-ASCII stripping ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "strip_unicode_garbage_cpt",
+    "description": "Unicode garbage character stripped from CPT code (58559 + mojibake)",
+    "input": {"code": "58559\ufffd", "code_type": "CPT"},
+    "expected": {"code": "58559", "code_type": "CPT"}
+  },
+  {
+    "id": "strip_unicode_preserves_valid",
+    "description": "Valid ASCII code unchanged by non-ASCII stripping",
+    "input": {"code": "99213", "code_type": "CPT"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+
+  {"id": "--- STEP 9: code validation & extraction ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "extract_hcpcs_from_x_wrapper",
+    "description": "XJ0591X labeled CPT → extract J0591, reclassify as HCPCS",
+    "input": {"code": "XJ0591X", "code_type": "CPT"},
+    "expected": {"code": "J0591", "code_type": "HCPCS"}
+  },
+  {
+    "id": "extract_cpt_from_a_prefix_decimal",
+    "description": "A29999.41 labeled HCPCS → extract 29999, reclassify as CPT",
+    "input": {"code": "A29999.41", "code_type": "HCPCS"},
+    "expected": {"code": "29999", "code_type": "CPT"}
+  },
+  {
+    "id": "extract_hcpcs_from_decimal_suffix",
+    "description": "A4649.0099 labeled HCPCS → extract A4649, keep HCPCS",
+    "input": {"code": "A4649.0099", "code_type": "HCPCS"},
+    "expected": {"code": "A4649", "code_type": "HCPCS"}
+  },
+  {
+    "id": "extract_cdt_from_ad_prefix",
+    "description": "AD9999 labeled CPT → extract D9999, reclassify as CDT (dental code)",
+    "input": {"code": "AD9999", "code_type": "CPT"},
+    "expected": {"code": "D9999", "code_type": "CDT"}
+  },
+  {
+    "id": "valid_cpt_unchanged",
+    "description": "Valid 5-digit CPT passes step 9 validation unchanged",
+    "input": {"code": "99213", "code_type": "CPT"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "valid_hcpcs_unchanged",
+    "description": "Valid HCPCS Level II code passes step 9 validation unchanged",
+    "input": {"code": "J0690", "code_type": "HCPCS"},
+    "expected": {"code": "J0690", "code_type": "HCPCS"}
+  },
+  {
+    "id": "valid_pla_code_unchanged",
+    "description": "Valid PLA code (0202U) passes step 9 validation unchanged",
+    "input": {"code": "0202U", "code_type": "CPT"},
+    "expected": {"code": "0202U", "code_type": "CPT"}
+  },
+  {
+    "id": "valid_cat3_reclassified_to_cpt",
+    "description": "Category III code (0237T) labeled HCPCS reclassified to CPT (Step 5.7 reverse fix; Cat III is CPT by definition)",
+    "input": {"code": "0237T", "code_type": "HCPCS"},
+    "expected": {"code": "0237T", "code_type": "CPT"}
+  },
+  {
+    "id": "unsalvageable_cpt_to_local",
+    "description": "Unsalvageable garbage code labeled CPT → downgrade to LOCAL",
+    "input": {"code": "ZZZQQ", "code_type": "CPT"},
+    "expected": {"code": "ZZZQQ", "code_type": "LOCAL"}
+  },
+  {
+    "id": "extract_cat3_from_a_prefix",
+    "description": "A0237T labeled HCPCS → extract 0237T via garbage extraction, keep HCPCS",
+    "input": {"code": "A0237T", "code_type": "HCPCS"},
+    "expected": {"code": "0237T", "code_type": "HCPCS"}
+  },
+  {
+    "id": "acc_prefix_extract",
+    "description": "ACC3144 labeled HCPCS → extract C3144, reclassify as HCPCS",
+    "input": {"code": "ACC3144", "code_type": "HCPCS"},
+    "expected": {"code": "C3144", "code_type": "HCPCS"}
+  },
+
+  {"id": "--- STEP 10: placeholder/test code detection ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "placeholder_xxxxx_to_local",
+    "description": "XXXXX placeholder code → LOCAL",
+    "input": {"code": "XXXXX", "code_type": "HCPCS"},
+    "expected": {"code": "XXXXX", "code_type": "LOCAL"}
+  },
+  {
+    "id": "placeholder_test_to_local",
+    "description": "TEST.A test code → LOCAL",
+    "input": {"code": "TEST.A", "code_type": "CPT"},
+    "expected": {"code": "TEST.A", "code_type": "LOCAL"}
+  },
+  {
+    "id": "placeholder_na_to_local",
+    "description": "N/A placeholder → LOCAL",
+    "input": {"code": "N/A", "code_type": "CPT"},
+    "expected": {"code": "N/A", "code_type": "LOCAL"}
+  },
+  {
+    "id": "placeholder_not_on_rc",
+    "description": "Placeholder check skipped for RC code_type",
+    "input": {"code": "NONE", "code_type": "RC"},
+    "expected": {"code": "NONE", "code_type": "RC"}
+  },
+
+  {"id": "--- COMPOSITE CODE SPLITTING ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "composite_hcpcs_c1776",
+    "description": "Composite 'HCPCS C1776' → split to code=C1776, type=HCPCS",
+    "input": {"code": "HCPCS C1776", "code_type": null},
+    "expected": {"code": "C1776", "code_type": "HCPCS"}
+  },
+  {
+    "id": "composite_cpt_87339",
+    "description": "Composite 'CPT 87339' → split to code=87339, type=CPT",
+    "input": {"code": "CPT 87339", "code_type": null},
+    "expected": {"code": "87339", "code_type": "CPT"}
+  },
+  {
+    "id": "composite_cpt_registered_87339",
+    "description": "Composite 'CPT® 87339' after non-ASCII strip becomes 'CPT 87339'",
+    "input": {"code": "CPT\u00ae 87339", "code_type": null},
+    "expected": {"code": "87339", "code_type": "CPT"}
+  },
+  {
+    "id": "composite_msdrg_trailing_number",
+    "description": "Composite 'MS-DRG V41.0 (FY 2024) 155' → extract trailing DRG number 155",
+    "input": {"code": "MS-DRG V41.0 (FY 2024) 155", "code_type": null},
+    "expected": {"code": "155", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "composite_drg_simple",
+    "description": "Composite 'DRG 470' → split to code=470, type=MS-DRG",
+    "input": {"code": "DRG 470", "code_type": null},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "composite_hcpcs_long_cdm",
+    "description": "Composite 'HCPCS 25009999' → code too long for HCPCS → CDM",
+    "input": {"code": "HCPCS 25009999", "code_type": null},
+    "expected": {"code": "25009999", "code_type": "CDM"}
+  },
+  {
+    "id": "composite_hcpcs_5digit_to_cpt",
+    "description": "Composite 'HCPCS 99213' → 5-digit numeric → normalized to CPT",
+    "input": {"code": "HCPCS 99213", "code_type": null},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "composite_no_split_with_valid_code_type",
+    "description": "Code with space but valid code_type → no split (not composite)",
+    "input": {"code": "some description", "code_type": "CPT"},
+    "expected": {"code": "some description", "code_type": "LOCAL"}
+  },
+  {
+    "id": "composite_redundant_prefix_stripped",
+    "description": "Code 'CPT 99213' with code_type='CPT' → redundant prefix stripped",
+    "input": {"code": "CPT 99213", "code_type": "CPT"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "composite_no_split_plain_code",
+    "description": "Plain code without space → no split attempted",
+    "input": {"code": "99213", "code_type": null},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "composite_ndc_prefix",
+    "description": "Composite 'NDC 12345-6789-01' → split to NDC code, then canonicalized",
+    "input": {"code": "NDC 12345-6789-01", "code_type": null},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "composite_rev_prefix",
+    "description": "Composite 'REV 0360' → split then RC normalization",
+    "input": {"code": "REV 0360", "code_type": null},
+    "expected": {"code": "0360", "code_type": "RC"}
+  },
+  {
+    "id": "code_type_sup_to_cdm",
+    "description": "Partners Healthcare SUP code_type → CDM",
+    "input": {"code": "12345678", "code_type": "SUP"},
+    "expected": {"code": "12345678", "code_type": "CDM"}
+  },
+  {
+    "id": "code_type_eap_to_cdm",
+    "description": "Partners Healthcare EAP code_type → CDM",
+    "input": {"code": "EP12345", "code_type": "EAP"},
+    "expected": {"code": "EP12345", "code_type": "CDM"}
+  },
+  {
+    "id": "code_type_erx_to_cdm",
+    "description": "Partners Healthcare ERX code_type → CDM",
+    "input": {"code": "RX9999", "code_type": "ERX"},
+    "expected": {"code": "RX9999", "code_type": "CDM"}
+  },
+
+  {"id": "--- STEP 11: APR-DRG qualifier stripping ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "apr_drg_short_stay_qualifier",
+    "description": "APR-DRG '001-1 Short Stay' → '001-1'",
+    "input": {"code": "001-1 Short Stay", "code_type": "APR-DRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_trailing_dash_qualifier",
+    "description": "APR-DRG '001-1- IP LOS Greater Than 50 Days' → '001-1'",
+    "input": {"code": "001-1- IP LOS Greater Than 50 Days", "code_type": "APR-DRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_spaced_dash",
+    "description": "APR-DRG '001 - 1' (whitespace around dash) → '001-1'",
+    "input": {"code": "001 - 1", "code_type": "APR-DRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_already_canonical",
+    "description": "APR-DRG already in canonical 'NNN-S' form → unchanged",
+    "input": {"code": "139-1", "code_type": "APR-DRG"},
+    "expected": {"code": "139-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_base_only_no_severity",
+    "description": "APR-DRG '139 Unspecified' (no severity) → leading 3 digits",
+    "input": {"code": "139 Unspecified", "code_type": "APR-DRG"},
+    "expected": {"code": "139", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_nnns_bare_4digit",
+    "description": "APR-DRG legacy bare 4-digit '0011' → canonical '001-1'",
+    "input": {"code": "0011", "code_type": "APR-DRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_nnns_high_drg",
+    "description": "APR-DRG legacy bare '6414' → '641-4'",
+    "input": {"code": "6414", "code_type": "APR-DRG"},
+    "expected": {"code": "641-4", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_nnns_whitespace",
+    "description": "APR-DRG legacy bare '0012 ' (trailing whitespace) → '001-2'",
+    "input": {"code": "0012 ", "code_type": "APR-DRG"},
+    "expected": {"code": "001-2", "code_type": "APR-DRG"}
+  },
+
+  {"id": "--- AP-DRG synonym + period/verbose/leading-zero/base-padding ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "ap_drg_nnns",
+    "description": "AP-DRG synonym folds to APR-DRG; NNNS '0201' → '020-1'",
+    "input": {"code": "0201", "code_type": "AP-DRG"},
+    "expected": {"code": "020-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "ap_drg_already_canonical",
+    "description": "AP-DRG synonym with canonical '001-1' → '001-1' APR-DRG",
+    "input": {"code": "001-1", "code_type": "AP-DRG"},
+    "expected": {"code": "001-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "period_two_digit_base",
+    "description": "period form '48.4' → '048-4'",
+    "input": {"code": "48.4", "code_type": "APR-DRG"},
+    "expected": {"code": "048-4", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "period_three_digit_base",
+    "description": "period form '532.2' → '532-2'",
+    "input": {"code": "532.2", "code_type": "APR-DRG"},
+    "expected": {"code": "532-2", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "period_one_digit_base",
+    "description": "period form '5.3' → '005-3'",
+    "input": {"code": "5.3", "code_type": "APR-DRG"},
+    "expected": {"code": "005-3", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "period_guard_532_2_not_532",
+    "description": "E2 guard: '532.2' must produce '532-2', NOT the base-only '532'",
+    "input": {"code": "532.2", "code_type": "APR-DRG"},
+    "expected": {"code": "532-2", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "verbose_apr_soi",
+    "description": "verbose 'APR052  SOI 1' → '052-1' (double-space tolerated)",
+    "input": {"code": "APR052  SOI 1", "code_type": "APR-DRG"},
+    "expected": {"code": "052-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "compact_apr_disabled",
+    "description": "compact 'APR0012' → '001-2' once enabled; the rule is off (_APR_COMPACT_ENABLED=False), so this case is expected to fail.",
+    "input": {"code": "APR0012", "code_type": "APR-DRG"},
+    "expected": {"code": "001-2", "code_type": "APR-DRG"},
+    "xfail": "compact clause disabled (_APR_COMPACT_ENABLED=False)"
+  },
+  {
+    "id": "leading_zero_hyphen_two_digit",
+    "description": "leading-zero hyphen '48-3' → '048-3'",
+    "input": {"code": "48-3", "code_type": "APR-DRG"},
+    "expected": {"code": "048-3", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "leading_zero_hyphen_one_digit",
+    "description": "leading-zero hyphen '5-2' → '005-2'",
+    "input": {"code": "5-2", "code_type": "APR-DRG"},
+    "expected": {"code": "005-2", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "base_padding_two_digit",
+    "description": "base-only padding '48' → '048' (no severity - intentional)",
+    "input": {"code": "48", "code_type": "APR-DRG"},
+    "expected": {"code": "048", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "base_padding_one_digit",
+    "description": "base-only padding '5' → '005' (no severity - intentional)",
+    "input": {"code": "5", "code_type": "APR-DRG"},
+    "expected": {"code": "005", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "safety_icd_period_untouched",
+    "description": "Safety: '48.4' under code_type ICD is NOT APR-DRG-processed",
+    "input": {"code": "48.4", "code_type": "ICD"},
+    "expected": {"code": "48.4", "code_type": "ICD"}
+  },
+  {
+    "id": "safety_ms_drg_period_untouched",
+    "description": "Safety: '48.4' under code_type MS-DRG is not APR-DRG-processed; period means non-numeric, preserved as MS-DRG",
+    "input": {"code": "48.4", "code_type": "MS-DRG"},
+    "expected": {"code": "48.4", "code_type": "MS-DRG"}
+  },
+
+  {"id": "--- CMG affix + sub-format ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "cmg_code_type_normalize",
+    "description": "CMG is a recognized code_type (maps to 'CMG')",
+    "input": {"code": "1902", "code_type": "CMG"},
+    "expected": {"code": "1902", "code_type": "CMG"}
+  },
+  {
+    "id": "cmg_space_prefix_with_tier",
+    "description": "CMG label glued with space: 'CMG 1902-D' → code='1902-D', code_type='CMG'",
+    "input": {"code": "CMG 1902-D", "code_type": "CMG"},
+    "expected": {"code": "1902-D", "code_type": "CMG"}
+  },
+  {
+    "id": "cmg_space_prefix_no_type",
+    "description": "CMG space-prefix with no declared code_type → infer CMG",
+    "input": {"code": "CMG 1902-D", "code_type": null},
+    "expected": {"code": "1902-D", "code_type": "CMG"}
+  },
+  {
+    "id": "cmg_space_prefix_plain_group",
+    "description": "CMG space-prefix, plain 4-digit group (no tier): 'CMG 1902' → '1902'",
+    "input": {"code": "CMG 1902", "code_type": null},
+    "expected": {"code": "1902", "code_type": "CMG"}
+  },
+  {
+    "id": "cmg_dash_prefix_with_tier",
+    "description": "CMG dash-attached prefix: 'CMG-1902-D' → code='1902-D', code_type='CMG'",
+    "input": {"code": "CMG-1902-D", "code_type": "CMG"},
+    "expected": {"code": "1902-D", "code_type": "CMG"}
+  },
+  {
+    "id": "cmg_dash_prefix_no_type",
+    "description": "CMG dash-attached prefix with no declared code_type → infer CMG",
+    "input": {"code": "CMG-1902-D", "code_type": null},
+    "expected": {"code": "1902-D", "code_type": "CMG"}
+  },
+  {
+    "id": "cmg_bare_canonical_unchanged",
+    "description": "Bare canonical CMG '1902-D' typed CMG passes through unchanged",
+    "input": {"code": "1902-D", "code_type": "CMG"},
+    "expected": {"code": "1902-D", "code_type": "CMG"}
+  },
+  {
+    "id": "cmg_bare_plain_group_unchanged",
+    "description": "Bare 4-digit CMG group '1902' typed CMG passes through unchanged",
+    "input": {"code": "1902", "code_type": "CMG"},
+    "expected": {"code": "1902", "code_type": "CMG"}
+  },
+
+  {"id": "--- MS- abbreviated attached prefix ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "ms_abbrev_with_ms_drg_type",
+    "description": "'MS-012' typed MS-DRG → strip 'MS-' affix, code='012'",
+    "input": {"code": "MS-012", "code_type": "MS-DRG"},
+    "expected": {"code": "012", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "ms_abbrev_with_drg_synonym",
+    "description": "'MS-001' typed DRG (synonym) → strip affix, code='001', type='MS-DRG'",
+    "input": {"code": "MS-001", "code_type": "DRG"},
+    "expected": {"code": "001", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "ms_abbrev_no_type",
+    "description": "'MS-999' with no declared code_type → infer MS-DRG, code='999'",
+    "input": {"code": "MS-999", "code_type": null},
+    "expected": {"code": "999", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "ms_abbrev_with_cdm_type",
+    "description": "'MS-001' typed CDM (hospital-internal) → split to MS-DRG",
+    "input": {"code": "MS-001", "code_type": "CDM"},
+    "expected": {"code": "001", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "ms_abbrev_no_split_conflicting_apr_drg",
+    "description": "'MS-012' typed APR-DRG - conflicting standard type, must NOT split",
+    "input": {"code": "MS-012", "code_type": "APR-DRG"},
+    "expected": {"code": "MS-012", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "ms_abbrev_no_split_conflicting_rc",
+    "description": "'MS-012' typed RC - conflicting standard type, must NOT split",
+    "input": {"code": "MS-012", "code_type": "RC"},
+    "expected": {"code": "MS-012", "code_type": "RC"}
+  },
+  {
+    "id": "ms_false_positive_non_numeric",
+    "description": "'MSCODE' typed MS-DRG - does not match MS-\\d pattern, passes through unchanged",
+    "input": {"code": "MSCODE", "code_type": "MS-DRG"},
+    "expected": {"code": "MSCODE", "code_type": "MS-DRG"}
+  },
+
+  {"id": "--- trailing .0 float-coercion strip ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "rc_float_320_0",
+    "description": "RC '320.0' (Excel float coercion) → strip .0 then zero-pad → '0320'",
+    "input": {"code": "320.0", "code_type": "RC"},
+    "expected": {"code": "0320", "code_type": "RC"}
+  },
+  {
+    "id": "rc_float_450_0",
+    "description": "RC '450.0' → '0450'",
+    "input": {"code": "450.0", "code_type": "RC"},
+    "expected": {"code": "0450", "code_type": "RC"}
+  },
+  {
+    "id": "rc_float_761_0",
+    "description": "RC '761.0' → '0761'",
+    "input": {"code": "761.0", "code_type": "RC"},
+    "expected": {"code": "0761", "code_type": "RC"}
+  },
+  {
+    "id": "ms_drg_float_320_0",
+    "description": "MS-DRG '320.0' → strip .0 → '320'",
+    "input": {"code": "320.0", "code_type": "MS-DRG"},
+    "expected": {"code": "320", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "ms_drg_float_470_0",
+    "description": "MS-DRG '470.0' → '470'",
+    "input": {"code": "470.0", "code_type": "MS-DRG"},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "apr_drg_float_775_0",
+    "description": "APR-DRG '775.0' → strip .0 → '775' (base only, no severity)",
+    "input": {"code": "775.0", "code_type": "APR-DRG"},
+    "expected": {"code": "775", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apc_float_5191_0",
+    "description": "APC '5191.0' → '5191'",
+    "input": {"code": "5191.0", "code_type": "APC"},
+    "expected": {"code": "5191", "code_type": "APC"}
+  },
+  {
+    "id": "cmg_float_1902_0",
+    "description": "CMG '1902.0' → '1902'",
+    "input": {"code": "1902.0", "code_type": "CMG"},
+    "expected": {"code": "1902", "code_type": "CMG"}
+  },
+  {
+    "id": "icd_250_0_unchanged",
+    "description": "NEGATIVE: ICD '250.0' is a valid ICD-9 code - must NOT strip .0",
+    "input": {"code": "250.0", "code_type": "ICD"},
+    "expected": {"code": "250.0", "code_type": "ICD"}
+  },
+  {
+    "id": "icd_250_00_unchanged",
+    "description": "NEGATIVE: ICD '250.00' (ICD-9 with sub-code) - must NOT strip",
+    "input": {"code": "250.00", "code_type": "ICD"},
+    "expected": {"code": "250.00", "code_type": "ICD"}
+  },
+  {
+    "id": "local_float_not_stripped",
+    "description": "NEGATIVE: LOCAL '100.0' - LOCAL is not in float-strip scope, passes through",
+    "input": {"code": "100.0", "code_type": "LOCAL"},
+    "expected": {"code": "100.0", "code_type": "LOCAL"}
+  },
+
+  {"id": "--- APR-DRG base-severity confirmation ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "apr_drg_775_1_canonical",
+    "description": "APR-DRG '775-1' (base-severity form) passes through unchanged",
+    "input": {"code": "775-1", "code_type": "APR-DRG"},
+    "expected": {"code": "775-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_775_4_canonical",
+    "description": "APR-DRG '775-4' (highest severity tier) passes through unchanged",
+    "input": {"code": "775-4", "code_type": "APR-DRG"},
+    "expected": {"code": "775-4", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "apr_drg_001_2_canonical",
+    "description": "APR-DRG '001-2' canonical form passes through unchanged",
+    "input": {"code": "001-2", "code_type": "APR-DRG"},
+    "expected": {"code": "001-2", "code_type": "APR-DRG"}
+  },
+
+  {"id": "--- NDCHCPCS / NDCCPT disambiguation ---", "description": "section marker", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "ndchcpcs_hcpcs_letter_prefix",
+    "description": "NDCHCPCS with HCPCS letter-prefix shape J1885 → HCPCS",
+    "input": {"code": "J1885", "code_type": "NDCHCPCS"},
+    "expected": {"code": "J1885", "code_type": "HCPCS"}
+  },
+  {
+    "id": "ndchcpcs_5digit_to_cpt",
+    "description": "NDCHCPCS with 5-digit numeric shape 99213 → CPT",
+    "input": {"code": "99213", "code_type": "NDCHCPCS"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "ndccpt_5digit_to_cpt",
+    "description": "NDCCPT with 5-digit numeric shape 99213 → CPT",
+    "input": {"code": "99213", "code_type": "NDCCPT"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "ndccpt_hcpcs_letter_prefix",
+    "description": "NDCCPT with HCPCS letter-prefix shape J1885 → HCPCS",
+    "input": {"code": "J1885", "code_type": "NDCCPT"},
+    "expected": {"code": "J1885", "code_type": "HCPCS"}
+  },
+  {
+    "id": "ndchcpcs_ndc_11digit",
+    "description": "NDCHCPCS with canonical 11-digit NDC shape → NDC",
+    "input": {"code": "12345678901", "code_type": "NDCHCPCS"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndchcpcs_ndc_dashed",
+    "description": "NDCHCPCS with 3-segment dashed NDC → canonicalize to 11-digit NDC",
+    "input": {"code": "12345-6789-01", "code_type": "NDCHCPCS"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "ndchcpcs_unrecognized_to_local",
+    "description": "NDCHCPCS with code matching no known shape → LOCAL",
+    "input": {"code": "SOMETEXT", "code_type": "NDCHCPCS"},
+    "expected": {"code": "SOMETEXT", "code_type": "LOCAL"}
+  },
+  {
+    "id": "ndccpt_unrecognized_to_local",
+    "description": "NDCCPT with code matching no known shape → LOCAL",
+    "input": {"code": "FREETEXT", "code_type": "NDCCPT"},
+    "expected": {"code": "FREETEXT", "code_type": "LOCAL"}
+  },
+
+  {"id": "--- junk code_type discard ---", "description": "section marker", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "junk_type_type_hcpcs_shape",
+    "description": "code_type='TYPE' (junk) + HCPCS-shape code J1885 → HCPCS",
+    "input": {"code": "J1885", "code_type": "TYPE"},
+    "expected": {"code": "J1885", "code_type": "HCPCS"}
+  },
+  {
+    "id": "junk_type_obs_cpt_shape",
+    "description": "code_type='OBS' (junk) + CPT-shape code 99213 → CPT",
+    "input": {"code": "99213", "code_type": "OBS"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "junk_type_modifier_hcpcs_shape",
+    "description": "code_type='MODIFIER' (junk) + HCPCS-shape code → HCPCS",
+    "input": {"code": "J1885", "code_type": "MODIFIER"},
+    "expected": {"code": "J1885", "code_type": "HCPCS"}
+  },
+  {
+    "id": "junk_type_modifiers_cpt_shape",
+    "description": "code_type='MODIFIERS' (junk) + CPT-shape code → CPT",
+    "input": {"code": "99213", "code_type": "MODIFIERS"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "junk_type_dot_unrecognized",
+    "description": "code_type='DOT' (junk) + unrecognized code → re-derives as blank (None)",
+    "input": {"code": "XYZAB", "code_type": "DOT"},
+    "expected": {"code": "XYZAB", "code_type": null}
+  },
+  {
+    "id": "junk_type_un_cpt_shape",
+    "description": "code_type='UN' (junk) + CPT-shape code → CPT",
+    "input": {"code": "99213", "code_type": "UN"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+
+  {"id": "--- cross-system reclassify ---", "description": "section marker", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "rc_cpt_shape_reclassified",
+    "description": "CPT code 99232 declared as RC → reclassified to CPT",
+    "input": {"code": "99232", "code_type": "RC"},
+    "expected": {"code": "99232", "code_type": "CPT"}
+  },
+  {
+    "id": "rc_cpt_shape_90792",
+    "description": "CPT code 90792 declared as RC → reclassified to CPT",
+    "input": {"code": "90792", "code_type": "RC"},
+    "expected": {"code": "90792", "code_type": "CPT"}
+  },
+  {
+    "id": "rc_valid_stays_rc",
+    "description": "Valid 4-digit RC code 0450 stays RC",
+    "input": {"code": "0450", "code_type": "RC"},
+    "expected": {"code": "0450", "code_type": "RC"}
+  },
+  {
+    "id": "rc_hcpcs_shape_reclassified",
+    "description": "HCPCS code J1885 declared as RC → reclassified to HCPCS",
+    "input": {"code": "J1885", "code_type": "RC"},
+    "expected": {"code": "J1885", "code_type": "HCPCS"}
+  },
+  {
+    "id": "ms_drg_cpt_shape_reclassified",
+    "description": "CPT code 99213 declared as MS-DRG → reclassified to CPT",
+    "input": {"code": "99213", "code_type": "MS-DRG"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "ms_drg_valid_stays",
+    "description": "Valid MS-DRG 470 stays MS-DRG",
+    "input": {"code": "470", "code_type": "MS-DRG"},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "apr_drg_cpt_shape_reclassified",
+    "description": "CPT code 99213 declared as APR-DRG → reclassified to CPT",
+    "input": {"code": "99213", "code_type": "APR-DRG"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "cmg_cdt_shape_reclassified",
+    "description": "CDT code D1110 declared as CMG → reclassified to CDT",
+    "input": {"code": "D1110", "code_type": "CMG"},
+    "expected": {"code": "D1110", "code_type": "CDT"}
+  },
+
+  {"id": "--- residue gating → LOCAL ---", "description": "section marker", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "ms_drg_4digit_to_local",
+    "description": "MS-DRG '1622' (4-digit, valid range 1-3 digits) → LOCAL, code preserved",
+    "input": {"code": "1622", "code_type": "MS-DRG"},
+    "expected": {"code": "1622", "code_type": "LOCAL"}
+  },
+  {
+    "id": "ms_drg_5digit_to_local",
+    "description": "MS-DRG '66130' (5-digit) → LOCAL (cross-system reclassify catches 5-digit CPT first)",
+    "input": {"code": "66130", "code_type": "MS-DRG"},
+    "expected": {"code": "66130", "code_type": "CPT"}
+  },
+  {
+    "id": "eapg_6digit_to_local",
+    "description": "EAPG '123456' (6-digit, valid range 3-5) → LOCAL, code preserved",
+    "input": {"code": "123456", "code_type": "EAPG"},
+    "expected": {"code": "123456", "code_type": "LOCAL"}
+  },
+  {
+    "id": "eapg_valid_stays",
+    "description": "EAPG '12345' (5-digit) stays EAPG",
+    "input": {"code": "12345", "code_type": "EAPG"},
+    "expected": {"code": "12345", "code_type": "EAPG"}
+  },
+  {
+    "id": "apr_drg_775_1_stays_valid",
+    "description": "APR-DRG '775-1' (base-severity canonical form) stays APR-DRG (must not be gated)",
+    "input": {"code": "775-1", "code_type": "APR-DRG"},
+    "expected": {"code": "775-1", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "cmg_1902_d_stays_valid",
+    "description": "CMG '1902-D' (group-tier canonical form) stays CMG (must not be gated)",
+    "input": {"code": "1902-D", "code_type": "CMG"},
+    "expected": {"code": "1902-D", "code_type": "CMG"}
+  },
+  {
+    "id": "ms_drg_non_numeric_preserved",
+    "description": "MS-DRG with non-numeric code 'MSCODE' preserved (non-numeric codes not residue-gated)",
+    "input": {"code": "MSCODE", "code_type": "MS-DRG"},
+    "expected": {"code": "MSCODE", "code_type": "MS-DRG"}
+  },
+
+  {"id": "--- idempotency ---", "description": "section marker", "input": {"code": "X", "code_type": "X"}, "expected": {"code": "X", "code_type": "X"}},
+
+  {
+    "id": "idempotent_hcpcs",
+    "description": "Running normalize_code twice on HCPCS J1885 is a fixed point",
+    "input": {"code": "J1885", "code_type": "HCPCS"},
+    "expected": {"code": "J1885", "code_type": "HCPCS"}
+  },
+  {
+    "id": "idempotent_cpt_reclassified_from_rc",
+    "description": "99232/CPT (already reclassified) stays CPT/99232 on second pass",
+    "input": {"code": "99232", "code_type": "CPT"},
+    "expected": {"code": "99232", "code_type": "CPT"}
+  },
+  {
+    "id": "idempotent_local",
+    "description": "1622/LOCAL (already gated) stays LOCAL on second pass",
+    "input": {"code": "1622", "code_type": "LOCAL"},
+    "expected": {"code": "1622", "code_type": "LOCAL"}
+  }
+]

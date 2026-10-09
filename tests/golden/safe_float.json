@@ -1,0 +1,98 @@
+[
+  {
+    "id": "none_returns_none",
+    "description": "None input returns None",
+    "input": {"value": null},
+    "expected": {"result": null}
+  },
+  {
+    "id": "int_zero",
+    "description": "Integer 0 returns 0.0",
+    "input": {"value": 0},
+    "expected": {"result": 0.0}
+  },
+  {
+    "id": "int_positive",
+    "description": "Positive integer returns float",
+    "input": {"value": 1},
+    "expected": {"result": 1.0}
+  },
+  {
+    "id": "float_value",
+    "description": "Float passes through",
+    "input": {"value": 1.5},
+    "expected": {"result": 1.5}
+  },
+  {
+    "id": "negative_float",
+    "description": "Negative float passes through",
+    "input": {"value": -3.14},
+    "expected": {"result": -3.14}
+  },
+  {
+    "id": "empty_string",
+    "description": "Empty string returns None",
+    "input": {"value": ""},
+    "expected": {"result": null}
+  },
+  {
+    "id": "whitespace_string",
+    "description": "Whitespace-only string returns None",
+    "input": {"value": "  "},
+    "expected": {"result": null}
+  },
+  {
+    "id": "string_integer",
+    "description": "String '123' parsed to 123.0",
+    "input": {"value": "123"},
+    "expected": {"result": 123.0}
+  },
+  {
+    "id": "string_float",
+    "description": "String '123.45' parsed to 123.45",
+    "input": {"value": "123.45"},
+    "expected": {"result": 123.45}
+  },
+  {
+    "id": "string_with_commas",
+    "description": "Commas stripped: '1,234.56' → 1234.56",
+    "input": {"value": "1,234.56"},
+    "expected": {"result": 1234.56}
+  },
+  {
+    "id": "dollar_sign",
+    "description": "Dollar sign stripped: '$100' → 100.0",
+    "input": {"value": "$100"},
+    "expected": {"result": 100.0}
+  },
+  {
+    "id": "dollar_sign_with_commas",
+    "description": "Dollar sign and commas stripped: '$1,234.56' → 1234.56",
+    "input": {"value": "$1,234.56"},
+    "expected": {"result": 1234.56}
+  },
+  {
+    "id": "non_numeric_string",
+    "description": "Non-numeric string returns None",
+    "input": {"value": "abc"},
+    "expected": {"result": null}
+  },
+  {
+    "id": "partial_numeric_string",
+    "description": "Partially numeric string returns None (ValueError on float())",
+    "input": {"value": "12abc"},
+    "expected": {"result": null}
+  },
+  {
+    "id": "string_with_whitespace",
+    "description": "Whitespace around number stripped",
+    "input": {"value": "  45.67  "},
+    "expected": {"result": 45.67}
+  },
+  {
+    "id": "float_zero",
+    "description": "Float 0.0 returns 0.0",
+    "input": {"value": 0.0},
+    "expected": {"result": 0.0}
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "none_input",
+    "description": "None returns None",
+    "input": {"raw": null},
+    "expected": null
+  },
+  {
+    "id": "empty_string",
+    "description": "Empty string returns None",
+    "input": {"raw": ""},
+    "expected": null
+  },
+  {
+    "id": "whitespace_only",
+    "description": "Whitespace-only returns None",
+    "input": {"raw": "   "},
+    "expected": null
+  },
+  {
+    "id": "compact_9digit",
+    "description": "9-digit compact EIN unchanged",
+    "input": {"raw": "940562680"},
+    "expected": "940562680"
+  },
+  {
+    "id": "dashed_xx_xxxxxxx",
+    "description": "XX-XXXXXXX format - dash stripped",
+    "input": {"raw": "68-0396600"},
+    "expected": "680396600"
+  },
+  {
+    "id": "dashed_with_whitespace",
+    "description": "Dashed EIN with surrounding whitespace",
+    "input": {"raw": "  94-1461843  "},
+    "expected": "941461843"
+  },
+  {
+    "id": "already_compact",
+    "description": "Already compact 9-digit EIN unchanged",
+    "input": {"raw": "123456789"},
+    "expected": "123456789"
+  },
+  {
+    "id": "multiple_dashes",
+    "description": "Multiple dashes all stripped",
+    "input": {"raw": "12-34-56789"},
+    "expected": "123456789"
+  }
+]

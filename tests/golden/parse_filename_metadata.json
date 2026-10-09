@@ -1,0 +1,74 @@
+[
+  {
+    "id": "ein_only_9digit",
+    "description": "Standard 9-digit EIN only",
+    "input": {"filename": "946174066_stanford-health-care_standardcharges.json"},
+    "expected": {"ein": "946174066", "npi": null}
+  },
+  {
+    "id": "ein_with_npi",
+    "description": "9-digit EIN with NPI separated by dash",
+    "input": {"filename": "940562680-1043670334_mills-peninsula_standardcharges.csv"},
+    "expected": {"ein": "940562680", "npi": "1043670334"}
+  },
+  {
+    "id": "dashed_ein_with_npi",
+    "description": "EIN in XX-XXXXXXX format with NPI",
+    "input": {"filename": "68-0396600-1801821376_John-Muir_standardcharges.zip"},
+    "expected": {"ein": "680396600", "npi": "1801821376"}
+  },
+  {
+    "id": "no_ein_in_filename",
+    "description": "Filename without numeric prefix - no EIN detected",
+    "input": {"filename": "ucsf_medical_center_standardcharges.json"},
+    "expected": {"ein": null, "npi": null}
+  },
+  {
+    "id": "subset_prefix_stripped",
+    "description": "subset_ test prefix stripped before parsing",
+    "input": {"filename": "subset_946174066_stanford-health-care_standardcharges.json"},
+    "expected": {"ein": "946174066", "npi": null}
+  },
+  {
+    "id": "subset_prefix_ein_with_npi",
+    "description": "subset_ prefix with EIN-NPI",
+    "input": {"filename": "subset_940562680-1043670334_mills-peninsula_standardcharges.csv"},
+    "expected": {"ein": "940562680", "npi": "1043670334"}
+  },
+  {
+    "id": "subset_prefix_dashed_ein",
+    "description": "subset_ prefix with dashed EIN and NPI",
+    "input": {"filename": "subset_94-1461843-1740215219_John-Muir_standardcharges.csv"},
+    "expected": {"ein": "941461843", "npi": "1740215219"}
+  },
+  {
+    "id": "subset_prefix_no_ein",
+    "description": "subset_ prefix with no EIN in filename",
+    "input": {"filename": "subset_ucsf_medical_center_standardcharges.json"},
+    "expected": {"ein": null, "npi": null}
+  },
+  {
+    "id": "csv_gz_extension",
+    "description": ".csv.gz double extension handled",
+    "input": {"filename": "940562680-1043670334_mills-peninsula_standardcharges.csv.gz"},
+    "expected": {"ein": "940562680", "npi": "1043670334"}
+  },
+  {
+    "id": "json_gz_extension",
+    "description": ".json.gz double extension handled",
+    "input": {"filename": "946174066_stanford-health-care_standardcharges.json.gz"},
+    "expected": {"ein": "946174066", "npi": null}
+  },
+  {
+    "id": "dashed_ein_no_npi",
+    "description": "EIN in XX-XXXXXXX format without NPI (2 segments, 2+7 digits)",
+    "input": {"filename": "12-3456789_hospital_standardcharges.csv"},
+    "expected": {"ein": "123456789", "npi": null}
+  },
+  {
+    "id": "no_underscore_no_ein",
+    "description": "Simple filename without underscore separator - no EIN",
+    "input": {"filename": "hospital.csv"},
+    "expected": {"ein": null, "npi": null}
+  }
+]

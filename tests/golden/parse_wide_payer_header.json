@@ -1,0 +1,304 @@
+[
+  {
+    "id": "negotiated_dollar_4part",
+    "description": "Standard 4-part: standard_charge|PAYER|PLAN|negotiated_dollar → negotiated_rate",
+    "input": {"source_header": "standard_charge|Aetna|HMO|negotiated_dollar"},
+    "expected": {"payer": "Aetna", "plan": "HMO", "field": "negotiated_rate"}
+  },
+  {
+    "id": "negotiated_percentage_4part",
+    "description": "4-part negotiated_percentage",
+    "input": {"source_header": "standard_charge|Blue Shield|PPO|negotiated_percentage"},
+    "expected": {"payer": "Blue Shield", "plan": "PPO", "field": "negotiated_percentage"}
+  },
+  {
+    "id": "negotiated_algorithm_4part",
+    "description": "4-part negotiated_algorithm",
+    "input": {"source_header": "standard_charge|Cigna|EPO|negotiated_algorithm"},
+    "expected": {"payer": "Cigna", "plan": "EPO", "field": "negotiated_algorithm"}
+  },
+  {
+    "id": "methodology_4part",
+    "description": "4-part methodology",
+    "input": {"source_header": "standard_charge|UHC|POS|methodology"},
+    "expected": {"payer": "UHC", "plan": "POS", "field": "methodology"}
+  },
+  {
+    "id": "unknown_suffix_4part",
+    "description": "4-part with unknown suffix → None (suffix not in _WIDE_RATE_SUFFIXES)",
+    "input": {"source_header": "standard_charge|Aetna|HMO|unknown_suffix"},
+    "expected": null
+  },
+  {
+    "id": "estimated_amount_3part",
+    "description": "3-part estimated_amount → estimated_amount",
+    "input": {"source_header": "estimated_amount|Aetna|HMO"},
+    "expected": {"payer": "Aetna", "plan": "HMO", "field": "estimated_amount"}
+  },
+  {
+    "id": "additional_payer_notes_3part",
+    "description": "3-part additional_payer_notes → additional_notes",
+    "input": {"source_header": "additional_payer_notes|Blue Shield|PPO"},
+    "expected": {"payer": "Blue Shield", "plan": "PPO", "field": "additional_notes"}
+  },
+  {
+    "id": "median_amount_3part",
+    "description": "3-part statistical: median_amount",
+    "input": {"source_header": "median_amount|Aetna|HMO"},
+    "expected": {"payer": "Aetna", "plan": "HMO", "field": "median_amount"}
+  },
+  {
+    "id": "10th_percentile_3part",
+    "description": "3-part statistical: 10th_percentile → pct_10",
+    "input": {"source_header": "10th_percentile|UHC|PPO"},
+    "expected": {"payer": "UHC", "plan": "PPO", "field": "pct_10"}
+  },
+  {
+    "id": "90th_percentile_3part",
+    "description": "3-part statistical: 90th_percentile → pct_90",
+    "input": {"source_header": "90th_percentile|Cigna|EPO"},
+    "expected": {"payer": "Cigna", "plan": "EPO", "field": "pct_90"}
+  },
+  {
+    "id": "count_3part",
+    "description": "3-part statistical: count → claim_count",
+    "input": {"source_header": "count|Kaiser|HMO"},
+    "expected": {"payer": "Kaiser", "plan": "HMO", "field": "claim_count"}
+  },
+  {
+    "id": "no_pipe_returns_none",
+    "description": "No pipe in header → None",
+    "input": {"source_header": "billing_code"},
+    "expected": null
+  },
+  {
+    "id": "standard_charge_2part_not_payer",
+    "description": "2-part standard_charge|gross is not a payer header → None",
+    "input": {"source_header": "standard_charge|gross"},
+    "expected": null
+  },
+  {
+    "id": "standard_charge_3part_not_valid",
+    "description": "3-part standard_charge where last part is not a rate suffix → None",
+    "input": {"source_header": "standard_charge|Aetna|HMO"},
+    "expected": null
+  },
+  {
+    "id": "standard_charge_3part_negotiated_dollar",
+    "description": "3-part: standard_charge|PAYER|negotiated_dollar → plan is empty string",
+    "input": {"source_header": "standard_charge|Triwest_Community_Care_Network_Commercial|negotiated_dollar"},
+    "expected": {"payer": "Triwest_Community_Care_Network_Commercial", "plan": "", "field": "negotiated_rate"}
+  },
+  {
+    "id": "standard_charge_3part_negotiated_percentage",
+    "description": "3-part: standard_charge|PAYER|negotiated_percentage → plan is empty string",
+    "input": {"source_header": "standard_charge|Triwest_Commercial|negotiated_percentage"},
+    "expected": {"payer": "Triwest_Commercial", "plan": "", "field": "negotiated_percentage"}
+  },
+  {
+    "id": "standard_charge_3part_negotiated_algorithm",
+    "description": "3-part: standard_charge|PAYER|negotiated_algorithm → plan is empty string",
+    "input": {"source_header": "standard_charge|Triwest_Commercial|negotiated_algorithm"},
+    "expected": {"payer": "Triwest_Commercial", "plan": "", "field": "negotiated_algorithm"}
+  },
+  {
+    "id": "standard_charge_3part_methodology",
+    "description": "3-part: standard_charge|PAYER|methodology → plan is empty string",
+    "input": {"source_header": "standard_charge|Triwest_Commercial|methodology"},
+    "expected": {"payer": "Triwest_Commercial", "plan": "", "field": "methodology"}
+  },
+  {
+    "id": "spaces_around_pipes",
+    "description": "Spaces around pipes are trimmed from parts",
+    "input": {"source_header": "standard_charge | Aetna | HMO | negotiated_dollar"},
+    "expected": {"payer": "Aetna", "plan": "HMO", "field": "negotiated_rate"}
+  },
+
+  {
+    "id": "negotiated_dollar_5part",
+    "description": "5-part: standard_charge|PAYER|PLAN|PRODUCT|negotiated_dollar → plan becomes 'PLAN - PRODUCT'",
+    "input": {"source_header": "standard_charge|HUMANA|GOLD|MEDICARE|negotiated_dollar"},
+    "expected": {"payer": "HUMANA", "plan": "GOLD - MEDICARE", "field": "negotiated_rate"}
+  },
+  {
+    "id": "negotiated_percentage_5part",
+    "description": "5-part: standard_charge|PAYER|PLAN|PRODUCT|negotiated_percentage",
+    "input": {"source_header": "standard_charge|HUMANA|SENIORADVANTAGE|MEDICARE|negotiated_percentage"},
+    "expected": {"payer": "HUMANA", "plan": "SENIORADVANTAGE - MEDICARE", "field": "negotiated_percentage"}
+  },
+  {
+    "id": "negotiated_algorithm_5part",
+    "description": "5-part: standard_charge|PAYER|PLAN|PRODUCT|negotiated_algorithm",
+    "input": {"source_header": "standard_charge|HUMANA|GOLD|MEDICARE|negotiated_algorithm"},
+    "expected": {"payer": "HUMANA", "plan": "GOLD - MEDICARE", "field": "negotiated_algorithm"}
+  },
+  {
+    "id": "methodology_5part",
+    "description": "5-part: standard_charge|PAYER|PLAN|PRODUCT|methodology",
+    "input": {"source_header": "standard_charge|HUMANA|GOLD|MEDICARE|methodology"},
+    "expected": {"payer": "HUMANA", "plan": "GOLD - MEDICARE", "field": "methodology"}
+  },
+  {
+    "id": "unknown_suffix_5part",
+    "description": "5-part with unknown suffix → None",
+    "input": {"source_header": "standard_charge|HUMANA|GOLD|MEDICARE|unknown_suffix"},
+    "expected": null
+  },
+  {
+    "id": "estimated_amount_4part",
+    "description": "4-part: estimated_amount|PAYER|PLAN|PRODUCT → plan becomes 'PLAN - PRODUCT'",
+    "input": {"source_header": "estimated_amount|HUMANA|GOLD|MEDICARE"},
+    "expected": {"payer": "HUMANA", "plan": "GOLD - MEDICARE", "field": "estimated_amount"}
+  },
+  {
+    "id": "additional_payer_notes_4part",
+    "description": "4-part: additional_payer_notes|PAYER|PLAN|PRODUCT → plan becomes 'PLAN - PRODUCT'",
+    "input": {"source_header": "additional_payer_notes |HUMANA|GOLD|MEDICARE"},
+    "expected": {"payer": "HUMANA", "plan": "GOLD - MEDICARE", "field": "additional_notes"}
+  },
+  {
+    "id": "median_amount_4part",
+    "description": "4-part statistical: median_amount|PAYER|PLAN|PRODUCT",
+    "input": {"source_header": "median_amount|HUMANA|GOLD|MEDICARE"},
+    "expected": {"payer": "HUMANA", "plan": "GOLD - MEDICARE", "field": "median_amount"}
+  },
+  {
+    "id": "10th_percentile_4part",
+    "description": "4-part statistical: 10th_percentile|PAYER|PLAN|PRODUCT → pct_10",
+    "input": {"source_header": "10th_percentile|HUMANA|GOLD|MEDICARE"},
+    "expected": {"payer": "HUMANA", "plan": "GOLD - MEDICARE", "field": "pct_10"}
+  },
+  {
+    "id": "90th_percentile_4part",
+    "description": "4-part statistical: 90th_percentile|PAYER|PLAN|PRODUCT → pct_90",
+    "input": {"source_header": "90th_percentile|HUMANA|SENIORADVANTAGE|MEDICARE"},
+    "expected": {"payer": "HUMANA", "plan": "SENIORADVANTAGE - MEDICARE", "field": "pct_90"}
+  },
+  {
+    "id": "count_4part",
+    "description": "4-part statistical: count|PAYER|PLAN|PRODUCT → claim_count",
+    "input": {"source_header": "count|HUMANA|GOLD|MEDICARE"},
+    "expected": {"payer": "HUMANA", "plan": "GOLD - MEDICARE", "field": "claim_count"}
+  },
+
+  {
+    "id": "estimated_amount_2part",
+    "description": "2-part: estimated_amount|PAYER → plan is empty string (e.g. Triwest in Ballard Rehab)",
+    "input": {"source_header": "estimated_amount |Triwest_Community_Care_Network_Commercial"},
+    "expected": {"payer": "Triwest_Community_Care_Network_Commercial", "plan": "", "field": "estimated_amount"}
+  },
+  {
+    "id": "additional_payer_notes_2part",
+    "description": "2-part: additional_payer_notes|PAYER → plan is empty string (e.g. Triwest in Ballard Rehab)",
+    "input": {"source_header": "additional_payer_notes |Triwest_Community_Care_Network_Commercial"},
+    "expected": {"payer": "Triwest_Community_Care_Network_Commercial", "plan": "", "field": "additional_notes"}
+  },
+  {
+    "id": "median_amount_2part",
+    "description": "2-part statistical: median_amount|PAYER → plan is empty string",
+    "input": {"source_header": "median_amount|Triwest_Commercial"},
+    "expected": {"payer": "Triwest_Commercial", "plan": "", "field": "median_amount"}
+  },
+  {
+    "id": "10th_percentile_2part",
+    "description": "2-part statistical: 10th_percentile|PAYER → plan is empty string",
+    "input": {"source_header": "10th_percentile|Triwest_Commercial"},
+    "expected": {"payer": "Triwest_Commercial", "plan": "", "field": "pct_10"}
+  },
+  {
+    "id": "90th_percentile_2part",
+    "description": "2-part statistical: 90th_percentile|PAYER → plan is empty string",
+    "input": {"source_header": "90th_percentile|Triwest_Commercial"},
+    "expected": {"payer": "Triwest_Commercial", "plan": "", "field": "pct_90"}
+  },
+  {
+    "id": "count_2part",
+    "description": "2-part statistical: count|PAYER → plan is empty string",
+    "input": {"source_header": "count|Triwest_Commercial"},
+    "expected": {"payer": "Triwest_Commercial", "plan": "", "field": "claim_count"}
+  },
+  {
+    "id": "estimated_amount_space_typo_3part",
+    "description": "Typo with space before underscore: 'estimated _amount' → estimated_amount (Southern Indiana Rehab format)",
+    "input": {"source_header": "estimated _amount | Anthem | HMO"},
+    "expected": {"payer": "Anthem", "plan": "HMO", "field": "estimated_amount"}
+  },
+  {
+    "id": "estimated_amount_space_typo_2part",
+    "description": "Typo with space before underscore, 2-part: 'estimated _amount|PAYER'",
+    "input": {"source_header": "estimated _amount|Medicare"},
+    "expected": {"payer": "Medicare", "plan": "", "field": "estimated_amount"}
+  },
+  {
+    "id": "standard_charge_space_typo_4part",
+    "description": "Typo with space in prefix: 'standard _charge' → standard_charge",
+    "input": {"source_header": "standard _charge|Aetna|PPO|negotiated_dollar"},
+    "expected": {"payer": "Aetna", "plan": "PPO", "field": "negotiated_rate"}
+  },
+  {
+    "id": "additional_payer_notes_space_typo_3part",
+    "description": "Typo with space in prefix: 'additional _payer_notes' → additional_payer_notes",
+    "input": {"source_header": "additional _payer_notes|Cigna|HMO"},
+    "expected": {"payer": "Cigna", "plan": "HMO", "field": "additional_notes"}
+  },
+  {
+    "id": "standard_charge_leading_empty_6part",
+    "description": "Summit BHC West Virginia: 'standard_charge||PAYER|PLAN|PRODUCT|suffix' (leading empty payer slot)",
+    "input": {"source_header": "standard_charge||Network health|PPO|Managed Medicare|negotiated_percentage"},
+    "expected": {"payer": "Network health", "plan": "PPO - Managed Medicare", "field": "negotiated_percentage"}
+  },
+  {
+    "id": "standard_charge_leading_empty_algorithm",
+    "description": "Summit BHC West Virginia: leading-empty with negotiated_algorithm suffix",
+    "input": {"source_header": "standard_charge||Network health|PPO|Managed Medicare|negotiated_algorithm"},
+    "expected": {"payer": "Network health", "plan": "PPO - Managed Medicare", "field": "negotiated_algorithm"}
+  },
+  {
+    "id": "standard_charge_leading_empty_methodology",
+    "description": "Summit BHC West Virginia: leading-empty with methodology suffix",
+    "input": {"source_header": "standard_charge||Network health|PPO|Managed Medicare|methodology"},
+    "expected": {"payer": "Network health", "plan": "PPO - Managed Medicare", "field": "methodology"}
+  },
+  {
+    "id": "additional_payer_notes_leading_empty_4part",
+    "description": "Summit BHC: 'additional_payer_notes||PAYER|PLAN' (leading empty collapsed → 3-part)",
+    "input": {"source_header": "additional_payer_notes||Network health|PPO"},
+    "expected": {"payer": "Network health", "plan": "PPO", "field": "additional_notes"}
+  },
+  {
+    "id": "additional_payer_notes_leading_empty_5part",
+    "description": "Summit BHC: 'additional_payer_notes||PAYER|PLAN|PRODUCT' (leading empty collapsed → 4-part)",
+    "input": {"source_header": "additional_payer_notes||Network health|PPO|Managed Medicare"},
+    "expected": {"payer": "Network health", "plan": "PPO - Managed Medicare", "field": "additional_notes"}
+  },
+  {
+    "id": "estimated_amount_leading_empty_5part",
+    "description": "Summit BHC: 'estimated_amount||PAYER|PLAN|PRODUCT' (leading empty collapsed → 4-part)",
+    "input": {"source_header": "estimated_amount||Network health|PPO|Managed Medicare"},
+    "expected": {"payer": "Network health", "plan": "PPO - Managed Medicare", "field": "estimated_amount"}
+  },
+  {
+    "id": "standard_charged_typo_prefix",
+    "description": "Prowers typo: standard_charged prefix still parses as wide payer",
+    "input": {"source_header": "standard_charged|Blue Cross Blue Shield IP|negotiated_percentage"},
+    "expected": {"payer": "Blue Cross Blue Shield IP", "plan": "", "field": "negotiated_percentage"}
+  },
+  {
+    "id": "standard_charges_plural_prefix",
+    "description": "Riverview plural prefix parses as wide payer",
+    "input": {"source_header": " standard_charges |Cigna|Commercial|negotiated rate_dollar"},
+    "expected": {"payer": "Cigna", "plan": "Commercial", "field": "negotiated_rate"}
+  },
+  {
+    "id": "standard_charge_extra_payer_segments",
+    "description": "Payer names split by pipes keep first segment as payer and fold the rest into plan",
+    "input": {"source_header": "standard_charge|PA|Health|&|Wellness|CHC|methodology"},
+    "expected": {"payer": "PA", "plan": "Health - & - Wellness - CHC", "field": "methodology"}
+  },
+  {
+    "id": "estimated_amount_singular_prefix_extra_segments",
+    "description": "estimate_amount typo prefix parses with extra plan segments",
+    "input": {"source_header": "estimate_amount|Sagamore|Sagamore Plus"},
+    "expected": {"payer": "Sagamore", "plan": "Sagamore Plus", "field": "estimated_amount"}
+  }
+]

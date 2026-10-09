@@ -1,0 +1,116 @@
+[
+  {
+    "id": "none_returns_none",
+    "description": "None input returns None",
+    "input": {"value": null},
+    "expected": {"result": null}
+  },
+  {
+    "id": "int_zero",
+    "description": "Integer 0 returns 0",
+    "input": {"value": 0},
+    "expected": {"result": 0}
+  },
+  {
+    "id": "int_positive",
+    "description": "Positive integer passes through",
+    "input": {"value": 42},
+    "expected": {"result": 42}
+  },
+  {
+    "id": "float_truncated",
+    "description": "Float 3.7 truncated to 3",
+    "input": {"value": 3.7},
+    "expected": {"result": 3}
+  },
+  {
+    "id": "float_whole",
+    "description": "Float 3.0 converts to 3",
+    "input": {"value": 3.0},
+    "expected": {"result": 3}
+  },
+  {
+    "id": "empty_string",
+    "description": "Empty string returns None",
+    "input": {"value": ""},
+    "expected": {"result": null}
+  },
+  {
+    "id": "whitespace_string",
+    "description": "Whitespace-only string returns None",
+    "input": {"value": "  "},
+    "expected": {"result": null}
+  },
+  {
+    "id": "string_integer",
+    "description": "String '123' parsed to 123",
+    "input": {"value": "123"},
+    "expected": {"result": 123}
+  },
+  {
+    "id": "string_zero",
+    "description": "String '0' parsed to 0",
+    "input": {"value": "0"},
+    "expected": {"result": 0}
+  },
+  {
+    "id": "string_negative",
+    "description": "String '-5' parsed to -5",
+    "input": {"value": "-5"},
+    "expected": {"result": -5}
+  },
+  {
+    "id": "range_through",
+    "description": "CMS range '1 through 10' → upper bound 10",
+    "input": {"value": "1 through 10"},
+    "expected": {"result": 10}
+  },
+  {
+    "id": "range_thru",
+    "description": "CMS range '1 thru 10' → upper bound 10",
+    "input": {"value": "1 thru 10"},
+    "expected": {"result": 10}
+  },
+  {
+    "id": "range_to",
+    "description": "CMS range '1 to 10' → upper bound 10",
+    "input": {"value": "1 to 10"},
+    "expected": {"result": 10}
+  },
+  {
+    "id": "range_through_larger",
+    "description": "CMS range '5 through 20' → upper bound 20",
+    "input": {"value": "5 through 20"},
+    "expected": {"result": 20}
+  },
+  {
+    "id": "non_numeric_string",
+    "description": "Non-numeric string returns None",
+    "input": {"value": "abc"},
+    "expected": {"result": null}
+  },
+  {
+    "id": "string_with_whitespace",
+    "description": "Whitespace around number stripped",
+    "input": {"value": "  45  "},
+    "expected": {"result": 45}
+  },
+  {
+    "id": "trailing_number_extraction",
+    "description": "Trailing number fallback: 'count: 99' → 99",
+    "input": {"value": "count: 99"},
+    "expected": {"result": 99}
+  },
+  {
+    "id": "string_float",
+    "description": "String float '3.7' → int(float('3.7')) = 3",
+    "input": {"value": "3.7"},
+    "expected": {"result": 3}
+  },
+  {
+    "id": "float_1_9",
+    "description": "Float 1.9 truncated to 1",
+    "input": {"value": 1.9},
+    "expected": {"result": 1}
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "id": "all_none_inputs",
+    "description": "All None inputs returns (None, None)",
+    "input": {"code": null, "code_type": null, "description": null, "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": null}
+  },
+  {
+    "id": "empty_strings",
+    "description": "Empty strings - billing_class '' is falsy so not preserved; no code/desc → (None, '')",
+    "input": {"code": "", "code_type": "", "description": "", "billing_class": ""},
+    "expected": {"billing_class": null, "normalized_code": ""}
+  },
+  {
+    "id": "billing_class_already_set_professional",
+    "description": "billing_class already provided - return as-is without inference",
+    "input": {"code": "99213", "code_type": "CPT", "description": "Office visit", "billing_class": "professional"},
+    "expected": {"billing_class": "professional", "normalized_code": "99213"}
+  },
+  {
+    "id": "billing_class_already_set_facility",
+    "description": "billing_class='facility' already set - no override even though code matches rules",
+    "input": {"code": null, "code_type": null, "description": null, "billing_class": "facility"},
+    "expected": {"billing_class": "facility", "normalized_code": null}
+  },
+  {
+    "id": "no_code_no_description",
+    "description": "No code and no description - cannot infer, return (None, code)",
+    "input": {"code": null, "code_type": null, "description": null, "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": null}
+  },
+  {
+    "id": "empty_code_empty_desc",
+    "description": "Empty code and empty description - falsy but not None, returns (None, '')",
+    "input": {"code": "", "code_type": null, "description": "", "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": ""}
+  },
+  {
+    "id": "rule1_a_prefix_cpt",
+    "description": "Rule 1: A-prefix on CPT code → facility, strip A prefix, keep CPT",
+    "input": {"code": "A19325", "code_type": "CPT", "description": "Breast reconstruction", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "19325", "code_type": "CPT"}
+  },
+  {
+    "id": "rule1_a_prefix_hcpcs",
+    "description": "Rule 1: A-prefix on HCPCS code with digits → facility, strip A, reclassify to CPT",
+    "input": {"code": "A19325", "code_type": "HCPCS", "description": "Some procedure", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "19325", "code_type": "CPT"}
+  },
+  {
+    "id": "rule1_a_prefix_none_code_type",
+    "description": "Rule 1: A-prefix with None code_type → facility, strip A prefix, set CPT",
+    "input": {"code": "A19325", "code_type": null, "description": "Some procedure", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "19325", "code_type": "CPT"}
+  },
+  {
+    "id": "rule1_a_prefix_5digit_no_desc",
+    "description": "Rule 1: A + 5 digits with no description → facility, strip A",
+    "input": {"code": "A12345", "code_type": null, "description": null, "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "12345", "code_type": "CPT"}
+  },
+  {
+    "id": "rule1_a_prefix_4digit_is_hcpcs_not_cpt",
+    "description": "Rule 1 must NOT fire on A + 4 digits: that is a genuine HCPCS Level II shape, and '1234' is not a valid 5-digit CPT",
+    "input": {"code": "A1234", "code_type": null, "description": "Short code", "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": "A1234", "code_type": null}
+  },
+  {
+    "id": "rule1_hcpcs_level2_supply_preserved",
+    "description": "A4322 is a real HCPCS Level II supply code (irrigation syringe) - must survive intact, not become CPT 4322",
+    "input": {"code": "A4322", "code_type": "HCPCS", "description": "Irrigation syringe, bulb or piston, each", "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": "A4322", "code_type": "HCPCS"}
+  },
+  {
+    "id": "rule1_hcpcs_level2_drug_preserved",
+    "description": "A9544 (iodine I-131 tositumomab) must survive intact rather than becoming the invalid CPT 9544",
+    "input": {"code": "A9544", "code_type": "HCPCS", "description": "Iodine i-131 tositumomab, diagnostic", "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": "A9544", "code_type": "HCPCS"}
+  },
+  {
+    "id": "rule1_a_prefix_cat3",
+    "description": "Rule 1: A-prefix on Category III code (A0237T) → facility, strip A, keep HCPCS",
+    "input": {"code": "A0237T", "code_type": "HCPCS", "description": "Cat III procedure", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "0237T", "code_type": "HCPCS"}
+  },
+  {
+    "id": "rule1_skipped_for_rc",
+    "description": "Rule 1: A-prefix with RC code_type - RC not in (CPT,HCPCS,None), falls to Rule 3",
+    "input": {"code": "A19325", "code_type": "RC", "description": "Some procedure", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "A19325"}
+  },
+  {
+    "id": "rule1_skipped_for_cdm",
+    "description": "Rule 1: A-prefix with CDM code_type - CDM not in (CPT,HCPCS,None), no rule matches",
+    "input": {"code": "A12345", "code_type": "CDM", "description": null, "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": "A12345"}
+  },
+  {
+    "id": "rule1_non_numeric_after_a",
+    "description": "Rule 1: A-prefix but non-numeric after A → rule doesn't fire",
+    "input": {"code": "ABCDE", "code_type": "CPT", "description": "Not numeric after A", "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": "ABCDE"}
+  },
+  {
+    "id": "rule2_pr_prefix",
+    "description": "Rule 2: Description starts with 'PR ' → professional",
+    "input": {"code": null, "code_type": null, "description": "PR CT Thorax Diag W Con", "billing_class": null},
+    "expected": {"billing_class": "professional", "normalized_code": null}
+  },
+  {
+    "id": "rule2_pr_prefix_with_code",
+    "description": "Rule 2: Description starts with 'PR ' with code present → professional, code unchanged",
+    "input": {"code": "99213", "code_type": "CPT", "description": "PR CT Thorax Diag W Con", "billing_class": null},
+    "expected": {"billing_class": "professional", "normalized_code": "99213"}
+  },
+  {
+    "id": "rule3_revenue_code",
+    "description": "Rule 3: RC code_type → facility by definition",
+    "input": {"code": "0470", "code_type": "RC", "description": "Operating room", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "0470"}
+  },
+  {
+    "id": "rule3_revenue_code_lab",
+    "description": "Rule 3: RC code_type for lab → facility",
+    "input": {"code": "0301", "code_type": "RC", "description": "Lab chemistry", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "0301"}
+  },
+  {
+    "id": "rule4_hc_prefix",
+    "description": "Rule 4: Description starts with 'HC ' on non-RC item → facility",
+    "input": {"code": null, "code_type": null, "description": "HC Outpatient Surgery", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": null}
+  },
+  {
+    "id": "rule4_hc_prefix_with_code",
+    "description": "Rule 4: 'HC ' prefix with CPT code → facility",
+    "input": {"code": "99213", "code_type": "CPT", "description": "HC Outpatient Surgery", "billing_class": null},
+    "expected": {"billing_class": "facility", "normalized_code": "99213"}
+  },
+  {
+    "id": "no_rule_matches_cpt",
+    "description": "No rule matches - normal CPT code with normal description",
+    "input": {"code": "99213", "code_type": "CPT", "description": "Office visit", "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": "99213"}
+  },
+  {
+    "id": "no_rule_matches_code_only",
+    "description": "No rule matches - code only, no description",
+    "input": {"code": "99213", "code_type": "CPT", "description": null, "billing_class": null},
+    "expected": {"billing_class": null, "normalized_code": "99213"}
+  }
+]

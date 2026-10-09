@@ -1,0 +1,218 @@
+[
+  {
+    "id": "no_space_passthrough",
+    "description": "Code without space → no split, passthrough",
+    "input": {"code": "C1776", "code_type": null},
+    "expected": {"code": "C1776", "code_type": null}
+  },
+  {
+    "id": "hcpcs_c1776",
+    "description": "HCPCS C1776 → split to C1776/HCPCS",
+    "input": {"code": "HCPCS C1776", "code_type": null},
+    "expected": {"code": "C1776", "code_type": "HCPCS"}
+  },
+  {
+    "id": "cpt_87339",
+    "description": "CPT 87339 → split to 87339/CPT",
+    "input": {"code": "CPT 87339", "code_type": null},
+    "expected": {"code": "87339", "code_type": "CPT"}
+  },
+  {
+    "id": "msdrg_complex",
+    "description": "MS-DRG with version info → extract trailing DRG number",
+    "input": {"code": "MS-DRG V41.0 (FY 2024) 155", "code_type": null},
+    "expected": {"code": "155", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "drg_simple",
+    "description": "DRG 470 → split to 470/DRG",
+    "input": {"code": "DRG 470", "code_type": null},
+    "expected": {"code": "470", "code_type": "DRG"}
+  },
+  {
+    "id": "drg_attached",
+    "description": "DRG100 → split to 100/DRG",
+    "input": {"code": "DRG100", "code_type": null},
+    "expected": {"code": "100", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "msdrg_attached_dash",
+    "description": "MS-DRG470 → split to 470/MS-DRG",
+    "input": {"code": "MS-DRG470", "code_type": "LOCAL"},
+    "expected": {"code": "470", "code_type": "MS-DRG"}
+  },
+  {
+    "id": "apc_attached",
+    "description": "APC5191 → split to 5191/APC",
+    "input": {"code": "APC5191", "code_type": "LOCAL"},
+    "expected": {"code": "5191", "code_type": "APC"}
+  },
+  {
+    "id": "rc_attached",
+    "description": "RC450 → split to 450/RC",
+    "input": {"code": "RC450", "code_type": "CDM"},
+    "expected": {"code": "450", "code_type": "RC"}
+  },
+  {
+    "id": "ndc_attached_dashed",
+    "description": "NDC12345-6789-01 → split to 12345-6789-01/NDC",
+    "input": {"code": "NDC12345-6789-01", "code_type": "LOCAL"},
+    "expected": {"code": "12345-6789-01", "code_type": "NDC"}
+  },
+  {
+    "id": "ndc_attached_11_digit",
+    "description": "NDC12345678901 → split to 12345678901/NDC",
+    "input": {"code": "NDC12345678901", "code_type": "CDM"},
+    "expected": {"code": "12345678901", "code_type": "NDC"}
+  },
+  {
+    "id": "cpt_attached",
+    "description": "CPT99213 → split to 99213/CPT",
+    "input": {"code": "CPT99213", "code_type": "LOCAL"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "hcpcs_attached",
+    "description": "HCPCSC1776 → split to C1776/HCPCS",
+    "input": {"code": "HCPCSC1776", "code_type": "LOCAL"},
+    "expected": {"code": "C1776", "code_type": "HCPCS"}
+  },
+  {
+    "id": "cdt_attached",
+    "description": "CDTD0120 → split to D0120/CDT",
+    "input": {"code": "CDTD0120", "code_type": "LOCAL"},
+    "expected": {"code": "D0120", "code_type": "CDT"}
+  },
+  {
+    "id": "aprdrg_attached",
+    "description": "APRDRG0011 → split to 0011/APR-DRG",
+    "input": {"code": "APRDRG0011", "code_type": "LOCAL"},
+    "expected": {"code": "0011", "code_type": "APR-DRG"}
+  },
+  {
+    "id": "supply_infix_drg_no_split",
+    "description": "SUP-D224DRG is an internal supply code, not an attached DRG prefix",
+    "input": {"code": "SUP-D224DRG", "code_type": "CDM"},
+    "expected": {"code": "SUP-D224DRG", "code_type": "CDM"}
+  },
+  {
+    "id": "supply_infix_apc_no_split",
+    "description": "SUP-APC-120 is an internal supply code, not an APC prefix",
+    "input": {"code": "SUP-APC-120", "code_type": "CDM"},
+    "expected": {"code": "SUP-APC-120", "code_type": "CDM"}
+  },
+  {
+    "id": "msdsg_typo_report_only_no_split",
+    "description": "MS-DSG typo is audit-only and not auto-split",
+    "input": {"code": "MS-DSG100", "code_type": "LOCAL"},
+    "expected": {"code": "MS-DSG100", "code_type": "LOCAL"}
+  },
+  {
+    "id": "icd10_cm_audit_only_no_split",
+    "description": "ICD-10-CM is audit-only and not auto-split",
+    "input": {"code": "ICD-10-CM Z12.11", "code_type": "LOCAL"},
+    "expected": {"code": "ICD-10-CM Z12.11", "code_type": "LOCAL"}
+  },
+  {
+    "id": "eapg_audit_only_no_split",
+    "description": "EAPG is audit-only and not auto-split",
+    "input": {"code": "EAPG1234", "code_type": "LOCAL"},
+    "expected": {"code": "EAPG1234", "code_type": "LOCAL"}
+  },
+  {
+    "id": "hipps_audit_only_no_split",
+    "description": "HIPPS is audit-only and not auto-split",
+    "input": {"code": "HIPPS1AA11", "code_type": "LOCAL"},
+    "expected": {"code": "HIPPS1AA11", "code_type": "LOCAL"}
+  },
+  {
+    "id": "ndc_prefix",
+    "description": "NDC 12345-6789-01 → split",
+    "input": {"code": "NDC 12345-6789-01", "code_type": null},
+    "expected": {"code": "12345-6789-01", "code_type": "NDC"}
+  },
+  {
+    "id": "rev_prefix",
+    "description": "REV 0360 → split to 0360/REV",
+    "input": {"code": "REV 0360", "code_type": null},
+    "expected": {"code": "0360", "code_type": "REV"}
+  },
+  {
+    "id": "hcpcs_long_code",
+    "description": "HCPCS 25009999 → split (downstream will reclassify as CDM)",
+    "input": {"code": "HCPCS 25009999", "code_type": null},
+    "expected": {"code": "25009999", "code_type": "HCPCS"}
+  },
+  {
+    "id": "valid_code_type_no_split",
+    "description": "Valid code_type present → don't split even with space in code",
+    "input": {"code": "some description text", "code_type": "CPT"},
+    "expected": {"code": "some description text", "code_type": "CPT"}
+  },
+  {
+    "id": "redundant_prefix_stripped",
+    "description": "Code starts with same prefix as code_type → strip redundant prefix",
+    "input": {"code": "CPT 99213", "code_type": "CPT"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "redundant_hcpcs_prefix",
+    "description": "HCPCS prefix with HCPCS code_type → strip prefix",
+    "input": {"code": "HCPCS J0591", "code_type": "HCPCS"},
+    "expected": {"code": "J0591", "code_type": "HCPCS"}
+  },
+  {
+    "id": "non_standard_code_type_allows_split",
+    "description": "Non-standard code_type (SUP) allows composite split",
+    "input": {"code": "HCPCS C1776", "code_type": "SUP"},
+    "expected": {"code": "C1776", "code_type": "HCPCS"}
+  },
+  {
+    "id": "unknown_prefix_no_split",
+    "description": "Unknown prefix (not in _COMPOSITE_CODE_PREFIXES) → no split",
+    "input": {"code": "UNKNOWN 12345", "code_type": null},
+    "expected": {"code": "UNKNOWN 12345", "code_type": null}
+  },
+  {
+    "id": "empty_rest_no_split",
+    "description": "Prefix with only space after → no split",
+    "input": {"code": "CPT ", "code_type": null},
+    "expected": {"code": "CPT ", "code_type": null}
+  },
+  {
+    "id": "msdrg_no_trailing_digits",
+    "description": "MS-DRG with no trailing digits → no split",
+    "input": {"code": "MS-DRG ABC", "code_type": null},
+    "expected": {"code": "MS-DRG ABC", "code_type": null}
+  },
+  {
+    "id": "drg_synonym_maps_to_msdrg",
+    "description": "DRG prefix extracts trailing number (DRG normalizes to MS-DRG)",
+    "input": {"code": "DRG V41.0 (FY 2024) 155", "code_type": null},
+    "expected": {"code": "155", "code_type": "DRG"}
+  },
+  {
+    "id": "cdm_type_allows_cpt_split",
+    "description": "CDM code_type allows splitting when code has CPT prefix",
+    "input": {"code": "CPT 99213", "code_type": "CDM"},
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "eap_type_allows_hcpcs_split",
+    "description": "EAP (→CDM) code_type allows splitting when code has HCPCS prefix",
+    "input": {"code": "HCPCS J0591", "code_type": "EAP"},
+    "expected": {"code": "J0591", "code_type": "HCPCS"}
+  },
+  {
+    "id": "local_type_allows_split",
+    "description": "LOCAL code_type allows splitting when code has standard prefix",
+    "input": {"code": "CPT 27447", "code_type": "LOCAL"},
+    "expected": {"code": "27447", "code_type": "CPT"}
+  },
+  {
+    "id": "drg_code_type_with_msdrg_prefix",
+    "description": "code_type='DRG' with 'MS-DRG ...' prefix → redundant strip + DRG trailing number extraction",
+    "input": {"code": "MS-DRG V41.0 (FY 2024) 469", "code_type": "DRG"},
+    "expected": {"code": "469", "code_type": "DRG"}
+  }
+]
