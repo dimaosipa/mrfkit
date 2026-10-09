@@ -1,0 +1,43 @@
+{
+ "hospital_name": "Flat Test Hospital",
+ "data": [
+  {
+   "description": "MRI Brain",
+   "code": "70551",
+   "code_type": "CPT",
+   "setting": "outpatient",
+   "gross_charge": "900",
+   "discounted_cash_price": "700",
+   "payer_name": "Cigna",
+   "plan_name": "HMO",
+   "negotiated_rate": "450",
+   "methodology": "fee schedule",
+   "Tab Name": "Shoppable"
+  },
+  {
+   "description": "MRI Brain",
+   "code": "70551",
+   "code_type": "CPT",
+   "setting": "outpatient",
+   "gross_charge": "900",
+   "discounted_cash_price": "700",
+   "payer_name": "Self Pay",
+   "plan_name": "",
+   "negotiated_rate": "650",
+   "methodology": "",
+   "Tab Name": "Shoppable"
+  },
+  {
+   "description": "Lab panel",
+   "code": "80053",
+   "code_type": "CPT",
+   "setting": "outpatient",
+   "gross_charge": "120",
+   "payer_name": "Aetna",
+   "plan_name": "PPO",
+   "negotiated_rate": "60",
+   "methodology": "percent of total billed charges",
+   "Tab Name": "Shoppable"
+  }
+ ]
+}
