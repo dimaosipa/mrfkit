@@ -103,3 +103,43 @@ class UnmappedCell:
     modifiers: Optional[str] = None
     source_column: str = ""
     value: Optional[str] = None
+
+
+@dataclass(slots=True)
+class FileMetadata:
+    """What the file says about itself: hospital, license, dates, attestation.
+
+    Several locations or addresses are joined with ``|``, as the CMS CSV
+    template writes them.
+    """
+
+    TABLE: ClassVar[str] = "file_metadata"
+
+    hospital_name: Optional[str] = None
+    hospital_location: Optional[str] = None
+    hospital_address: Optional[str] = None
+    cms_certification_number: Optional[str] = None
+    license_number: Optional[str] = None
+    license_state: Optional[str] = None
+    type_2_npi: Optional[str] = None
+    ein: Optional[str] = None
+    last_updated_on: Optional[str] = None
+    version: Optional[str] = None
+    attestation: Optional[str] = None
+    attester_name: Optional[str] = None
+    confirm_attestation: Optional[bool] = None
+
+
+@dataclass(slots=True)
+class HeaderMapping:
+    """How one source column (or JSON key) was read.
+
+    ``mapped_to`` is a canonical field name, a layout tag such as
+    ``wide_payer:negotiated_rate``, or None for an unmapped column.
+    """
+
+    TABLE: ClassVar[str] = "header_mappings"
+
+    source_header: str
+    normalized: str
+    mapped_to: Optional[str] = None

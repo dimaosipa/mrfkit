@@ -9,6 +9,7 @@ to know how many rows were rejected or repaired, pass a ``ParseStats`` as
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from typing import Dict, FrozenSet, List, Mapping, Optional
 
@@ -80,11 +81,19 @@ class ParseStats:
     """
 
     sample_limit: int = 20
+    rows_read: int = 0
+    rows_skipped: int = 0
+    warnings: List[str] = field(default_factory=list)
     rejected_codes: int = 0
     rejected_code_samples: List[Dict[str, str]] = field(default_factory=list)
     baked_modifier_splits: int = 0
     baked_modifiers: Dict[str, int] = field(default_factory=dict)
     baked_modifier_samples: List[Dict[str, str]] = field(default_factory=list)
+
+    def warn(self, message: str) -> None:
+        """Keep *message* for the caller and log it."""
+        self.warnings.append(message)
+        logging.getLogger("mrfkit").warning(message)
 
     def record_rejected_code(
         self, code: Optional[str], code_type: Optional[str],
