@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mrfkit"
+dynamic = ["version"]
+description = "Parse US hospital and insurer price transparency files (MRFs) into clean, normalized rows."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.11"
+authors = [{ name = "Dima Osipa" }]
+keywords = ["price transparency", "mrf", "hospital", "healthcare", "cms", "transparency in coverage"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = ["ijson>=3.2"]
+
+[project.optional-dependencies]
+parquet = ["pyarrow>=14"]
+dev = ["pytest>=8"]
+
+[project.urls]
+Source = "https://github.com/dimaosipa/mrfkit"
+Issues = "https://github.com/dimaosipa/mrfkit/issues"
+
+[tool.hatch.version]
+path = "src/mrfkit/__init__.py"
