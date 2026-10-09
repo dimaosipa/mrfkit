@@ -19,7 +19,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-dependencies = ["ijson>=3.2"]
+dependencies = [
+    "ijson>=3.2",
+    # Deflate64 zip members: the stdlib cannot read them, and real MRFs use them.
+    "inflate64>=1.0.4",
+]
 
 [project.optional-dependencies]
 parquet = ["pyarrow>=14"]
