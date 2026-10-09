@@ -116,7 +116,84 @@ def _normalize_billing_class(value: Optional[str]) -> str:
     return value if value in ('facility', 'professional') else ''
 
 
-class TableLayout:
+class RecordBuilder:
+    """Shared record building: item dedup, code cleanup, payer rate cleanup.
+
+    One instance per file, so a charge item is emitted once per file.
+    """
+
+    def __init__(self, *, code_extraction: Optional[Mapping[str, Any]] = None,
+                 ref: Optional[ReferenceData] = None, stats: Optional[ParseStats] = None):
+        self.ref = ref
+        self.stats = stats
+        self._code_config = {'code_extraction': dict(code_extraction)} if code_extraction else None
+        self._seen_items: set = set()
+
+    def clean_code(self, code, code_type, description):
+        """Run one (code, code_type) through extraction, normalization and the
+        baked-modifier split. Return ``(code, code_type, baked_modifier)``, or
+        None when the pair is too corrupt to keep."""
+        code, code_type = apply_code_extraction(code or None, code_type or None, self._code_config)
+        code, code_type = normalize_code(code or None, code_type or None)
+        code, code_type, baked = apply_baked_modifier_split(
+            code, code_type, description=description, ref=self.ref, stats=self.stats)
+        if is_rejected_code(code, code_type, stats=self.stats):
+            return None
+        return code, code_type, baked
+
+    def effective(self, code, code_type, description, billing_class):
+        """Apply billing-class inference, which can also fix the code and type."""
+        inferred_bc, normalized_code, inferred_ct = infer_billing_class(
+            code, code_type, description, billing_class)
+        return (normalized_code if normalized_code != code else code,
+                inferred_ct if inferred_ct != code_type else code_type,
+                billing_class or inferred_bc or '')
+
+    def item(self, code, code_type, description, billing_class, setting, modifiers,
+             data) -> Iterator[ChargeItem]:
+        """Yield the charge item unless this file already produced its key."""
+        key = (code, code_type, billing_class or '', setting or '', modifiers or '')
+        if key in self._seen_items:
+            return
+        self._seen_items.add(key)
+        yield ChargeItem(
+            code, code_type, description, billing_class or '', setting or '', modifiers,
+            drug_unit_of_measurement=data.get('drug_unit_of_measurement'),
+            drug_type_of_measurement=data.get('drug_type_of_measurement'),
+            additional_generic_notes=data.get('additional_generic_notes'),
+        )
+
+    def rate(self, code, code_type, description, billing_class, setting, modifiers, *,
+             payer, plan, rate_billing_class, rate_setting, methodology=None,
+             negotiated_rate=None, negotiated_percentage=None, negotiated_algorithm=None,
+             estimated_amount=None, additional_notes=None, footnote=None,
+             median_amount=None, pct_10=None, pct_90=None, claim_count=None,
+             ) -> Iterator[PayerRate]:
+        """Yield a payer rate with normalized payer, plan and methodology."""
+        payer_name, plan_name = normalize_payer_name(payer, plan, ref=self.ref)
+        if not payer_name:
+            return
+        plan_category, plan_network, plan_name = normalize_plan_name(plan_name, payer_name)
+        methodology_type = normalize_methodology(methodology, ref=self.ref)
+        methodology = _clean_methodology(methodology)
+        methodology, methodology_type, negotiated_percentage = hoist_numeric_methodology(
+            methodology, methodology_type, negotiated_rate, negotiated_percentage,
+            negotiated_algorithm,
+        )
+        yield PayerRate(
+            code, code_type, description, billing_class or '', setting or '', modifiers,
+            payer_name=payer_name, raw_payer_name=payer, plan_name=plan_name,
+            plan_category=plan_category or 'Other', plan_network=plan_network,
+            negotiated_rate=negotiated_rate, negotiated_percentage=negotiated_percentage,
+            negotiated_algorithm=negotiated_algorithm, methodology=methodology,
+            methodology_type=methodology_type, estimated_amount=estimated_amount,
+            rate_billing_class=rate_billing_class or '', rate_setting=rate_setting or '',
+            additional_notes=additional_notes, footnote=footnote,
+            median_amount=median_amount, pct_10=pct_10, pct_90=pct_90, claim_count=claim_count,
+        )
+
+
+class TableLayout(RecordBuilder):
     """How to read the rows of one table, decided from its header.
 
     *peek_rows* are the first data rows. They are only used to spot the
@@ -135,10 +212,8 @@ class TableLayout:
         ref: Optional[ReferenceData] = None,
         stats: Optional[ParseStats] = None,
     ):
+        super().__init__(code_extraction=code_extraction, ref=ref, stats=stats)
         self.headers = list(headers)
-        self.ref = ref
-        self.stats = stats
-        self._code_config = {'code_extraction': dict(code_extraction)} if code_extraction else None
         self.mappings: Dict[str, HeaderMapping] = {}
 
         canonical_map: Dict[str, str] = {}
@@ -298,7 +373,6 @@ class TableLayout:
             log.info("CMS wide format: %d payer-plan combinations detected",
                      len(self.wide_payer_groups))
         self.unmapped = unmapped
-        self._seen_items: set = set()
         self._unmapped_counts: Dict[str, int] = {}
 
     # ------------------------------------------------------------------
@@ -309,50 +383,6 @@ class TableLayout:
     def header_mappings(self) -> List[HeaderMapping]:
         """One record per source column, saying what it was read as."""
         return [self.mappings[h] for h in self.headers if h in self.mappings]
-
-    # ------------------------------------------------------------------
-    # record builders
-
-    def _item(self, code, code_type, description, billing_class, setting, modifiers,
-              data) -> Iterator[ChargeItem]:
-        key = (code, code_type, billing_class or '', setting or '', modifiers or '')
-        if key in self._seen_items:
-            return
-        self._seen_items.add(key)
-        yield ChargeItem(
-            code, code_type, description, billing_class or '', setting or '', modifiers,
-            drug_unit_of_measurement=data.get('drug_unit_of_measurement'),
-            drug_type_of_measurement=data.get('drug_type_of_measurement'),
-            additional_generic_notes=data.get('additional_generic_notes'),
-        )
-
-    def _rate(self, code, code_type, description, billing_class, setting, modifiers, *,
-              payer, plan, rate_billing_class, rate_setting, methodology=None,
-              negotiated_rate=None, negotiated_percentage=None, negotiated_algorithm=None,
-              estimated_amount=None, additional_notes=None, footnote=None,
-              median_amount=None, pct_10=None, pct_90=None, claim_count=None,
-              ) -> Iterator[PayerRate]:
-        payer_name, plan_name = normalize_payer_name(payer, plan, ref=self.ref)
-        if not payer_name:
-            return
-        plan_category, plan_network, plan_name = normalize_plan_name(plan_name, payer_name)
-        methodology_type = normalize_methodology(methodology, ref=self.ref)
-        methodology = _clean_methodology(methodology)
-        methodology, methodology_type, negotiated_percentage = hoist_numeric_methodology(
-            methodology, methodology_type, negotiated_rate, negotiated_percentage,
-            negotiated_algorithm,
-        )
-        yield PayerRate(
-            code, code_type, description, billing_class or '', setting or '', modifiers,
-            payer_name=payer_name, raw_payer_name=payer, plan_name=plan_name,
-            plan_category=plan_category or 'Other', plan_network=plan_network,
-            negotiated_rate=negotiated_rate, negotiated_percentage=negotiated_percentage,
-            negotiated_algorithm=negotiated_algorithm, methodology=methodology,
-            methodology_type=methodology_type, estimated_amount=estimated_amount,
-            rate_billing_class=rate_billing_class or '', rate_setting=rate_setting or '',
-            additional_notes=additional_notes, footnote=footnote,
-            median_amount=median_amount, pct_10=pct_10, pct_90=pct_90, claim_count=claim_count,
-        )
 
     def _unmapped_cells(self, row, code, code_type, description, billing_class, setting,
                         modifiers) -> Iterator[UnmappedCell]:
@@ -378,13 +408,9 @@ class TableLayout:
             if not code and not code_type:
                 continue
             had_input = True
-            code, code_type = apply_code_extraction(code or None, code_type or None, self._code_config)
-            code, code_type = normalize_code(code or None, code_type or None)
-            code, code_type, baked = apply_baked_modifier_split(
-                code, code_type, description=description, ref=self.ref, stats=self.stats)
-            if is_rejected_code(code, code_type, stats=self.stats):
-                continue
-            pairs.append((code, code_type, baked))
+            cleaned = self.clean_code(code, code_type, description)
+            if cleaned is not None:
+                pairs.append(cleaned)
         if pairs:
             return pairs
         if had_input or not description:
@@ -392,13 +418,6 @@ class TableLayout:
             # or there is nothing to identify the item by.
             return None
         return [(None, None, None)]
-
-    def _effective(self, code, code_type, description, billing_class):
-        inferred_bc, normalized_code, inferred_ct = infer_billing_class(
-            code, code_type, description, billing_class)
-        return (normalized_code if normalized_code != code else code,
-                inferred_ct if inferred_ct != code_type else code_type,
-                billing_class or inferred_bc or '')
 
     def row_to_records(self, row: Dict[str, Any], *, first_row: bool = False,
                        check_sections: bool = False) -> Iterator[Any]:
@@ -473,11 +492,11 @@ class TableLayout:
             if not any([code, code_type, description]):
                 continue
             modifiers = merge_modifier_into_field(data.get('modifiers'), baked)
-            code, code_type, bc = self._effective(code, code_type, description, billing_class)
+            code, code_type, bc = self.effective(code, code_type, description, billing_class)
             key = (code, code_type, description, bc, setting, modifiers)
             if first is None:
                 first = key
-            yield from self._item(code, code_type, description, bc, setting, modifiers, data)
+            yield from self.item(code, code_type, description, bc, setting, modifiers, data)
             if has_charge:
                 yield StandardCharge(code, code_type, description, bc, setting, modifiers,
                                      gross, cash, min_rate, max_rate)
@@ -485,13 +504,13 @@ class TableLayout:
             if self.outpatient_price:
                 op_gross = _safe_float(cell(row, self.outpatient_price) or None)
                 if op_gross is not None:
-                    yield from self._item(code, code_type, description, bc, 'outpatient',
+                    yield from self.item(code, code_type, description, bc, 'outpatient',
                                           modifiers, data)
                     yield StandardCharge(code, code_type, description, bc, 'outpatient',
                                          modifiers, op_gross)
 
             if self.has_payer_column and raw_payer and not is_self_pay:
-                yield from self._rate(
+                yield from self.rate(
                     code, code_type, description, bc, setting, modifiers,
                     payer=raw_payer, plan=raw_plan,
                     rate_billing_class=data.get('billing_class'),
@@ -529,7 +548,7 @@ class TableLayout:
                 )
                 if not any(values.values()):
                     continue
-                yield from self._rate(
+                yield from self.rate(
                     code, code_type, description, bc, setting, modifiers,
                     payer=payer, plan=plan, rate_billing_class=bc, rate_setting=setting,
                     additional_notes=text('additional_notes'),
@@ -549,7 +568,7 @@ class TableLayout:
             if not any([code, code_type, description]):
                 continue
             modifiers = merge_modifier_into_field(data.get('modifiers'), baked)
-            code, code_type, bc = self._effective(code, code_type, description, billing_class)
+            code, code_type, bc = self.effective(code, code_type, description, billing_class)
             if first is None:
                 first = (code, code_type, description, bc, modifiers)
             emitted = set()
@@ -563,7 +582,7 @@ class TableLayout:
                 emitted.add(setting)
                 if first_setting is None:
                     first_setting = setting
-                yield from self._item(code, code_type, description, bc, setting, modifiers, data)
+                yield from self.item(code, code_type, description, bc, setting, modifiers, data)
                 yield StandardCharge(code, code_type, description, bc, setting, modifiers,
                                      gross, cash, min_rate, max_rate)
             for header, payer, setting, methodology in self.hawaii_payers:
@@ -576,7 +595,7 @@ class TableLayout:
                 if methodology == 'percent_of_charge':
                     # Some files write 0.85 for 85%.
                     percentage, rate = (rate * 100.0 if 0 < rate <= 1 else rate), None
-                yield from self._rate(
+                yield from self.rate(
                     code, code_type, description, bc, setting, modifiers,
                     payer=payer, plan=None, rate_billing_class=bc, rate_setting=setting,
                     methodology=methodology, negotiated_rate=rate,
@@ -596,7 +615,7 @@ class TableLayout:
             if not any([code, code_type, description]):
                 continue
             modifiers = merge_modifier_into_field(data.get('modifiers'), baked)
-            code, code_type, bc = self._effective(code, code_type, description, billing_class)
+            code, code_type, bc = self.effective(code, code_type, description, billing_class)
             if first is None:
                 first = (code, code_type, description, bc, modifiers)
             for setting, cols in self.atrium_settings.items():
@@ -614,11 +633,11 @@ class TableLayout:
                     continue
                 if first_setting is None:
                     first_setting = setting
-                yield from self._item(code, code_type, description, bc, setting, modifiers, data)
+                yield from self.item(code, code_type, description, bc, setting, modifiers, data)
                 yield StandardCharge(code, code_type, description, bc, setting, modifiers,
                                      gross, cash, min_rate, max_rate)
                 if raw_payer and not is_self_pay and negotiated is not None and flag not in ('MIN', 'MAX'):
-                    yield from self._rate(
+                    yield from self.rate(
                         code, code_type, description, bc, setting, modifiers,
                         payer=raw_payer, plan=data.get('plan_name'),
                         rate_billing_class=bc, rate_setting=setting,

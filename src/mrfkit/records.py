@@ -143,3 +143,22 @@ class HeaderMapping:
     source_header: str
     normalized: str
     mapped_to: Optional[str] = None
+
+
+@dataclass(slots=True)
+class ModifierInfo:
+    """A modifier the file defines (CMS 3.0 ``modifier_information``).
+
+    One general record per modifier code, then one per payer with its own
+    description. ``payer_name`` is normalized; ``raw_payer_name`` is as written.
+    """
+
+    TABLE: ClassVar[str] = "modifiers"
+
+    code: str
+    description: Optional[str] = None
+    setting: Optional[str] = None
+    payer_name: Optional[str] = None
+    raw_payer_name: Optional[str] = None
+    plan_name: Optional[str] = None
+    payer_description: Optional[str] = None

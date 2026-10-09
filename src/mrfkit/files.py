@@ -52,6 +52,10 @@ def detect_file_format(path: Path) -> Tuple[str, Optional[str]]:
     path = Path(path)
     name = path.name.lower()
 
+    if looks_like_html(path):
+        raise ValueError(
+            f"{path.name} is an HTML page, not an MRF: the download probably hit "
+            f"an error page or a bot challenge.")
     if name.endswith(('.xlsx', '.xls')):
         raise ValueError(
             f"Excel/XLSX files are not supported: {path.name}. "
@@ -82,6 +86,31 @@ def detect_file_format(path: Path) -> Tuple[str, Optional[str]]:
             return content_format, None
         return ext_format, None
     return _detect_format_from_content(path)
+
+
+# Signs of an HTML error page saved under an MRF name: ASP.NET download
+# stubs, CDN 403/404 pages, Cloudflare challenges.
+_HTML_MARKERS = (b"<!doctype html", b"<html", b"<head", b"attention required", b"__viewstate")
+
+
+def looks_like_html(path: Path) -> bool:
+    """True when the first 512 bytes of *path* look like an HTML page.
+
+    Compressed files and anything starting with ``{`` or ``[`` never match,
+    so a real MRF is not flagged.
+    """
+    try:
+        with open(path, 'rb') as fh:
+            head = fh.read(512)
+    except OSError:
+        return False
+    if not head or head[:2] in (b'\x1f\x8b', b'PK'):
+        return False
+    stripped = head.removeprefix(_UTF8_BOM).lstrip()
+    if stripped.startswith((b'{', b'[')):
+        return False
+    lowered = stripped.lower()
+    return any(marker in lowered for marker in _HTML_MARKERS)
 
 
 def _detect_format_from_content(path: Path) -> Tuple[str, Optional[str]]:
