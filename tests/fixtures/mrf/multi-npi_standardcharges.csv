@@ -1,0 +1,5 @@
+hospital_name,last_updated_on,version,hospital_location,hospital_address,type_2_npi,,,,,,,,,,,,,
+Marshfield Test Hospital,01/01/2026,2.0.0,Marshfield Test Hospital,"100 Main St,Marshfield,WI,54449",1023187416| 1124017140| 1154415024,,,,,,,,,,,,,
+description,code|1,code|1|type,setting,standard_charge|gross,standard_charge|discounted_cash,standard_charge|Aetna|Commercial|negotiated_dollar,standard_charge|Aetna|Commercial|methodology
+Office Visit Level 3,99213,CPT,outpatient,250.00,150.00,200.00,fee schedule
+MRI Brain,70551,CPT,outpatient,3500.00,2100.00,2800.00,fee schedule

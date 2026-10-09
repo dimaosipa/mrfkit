@@ -1,0 +1,81 @@
+{
+ "hospital_name": "Test Hospital",
+ "last_updated_on": "2026-01-01",
+ "version": "3.0.0",
+ "location_name": [
+  "Main Campus",
+  "North Clinic"
+ ],
+ "hospital_address": [
+  "1 Main St, Springfield, OR 97477"
+ ],
+ "license_information": {
+  "license_number": "14-1472",
+  "state": "Oregon"
+ },
+ "type_2_npi": [
+  "1234567893"
+ ],
+ "attestation": {
+  "attestation": "I attest",
+  "attester_name": "Jane Doe",
+  "confirm_attestation": true
+ },
+ "standard_charge_information": [
+  {
+   "description": "Office Visit Level 3",
+   "code_information": [
+    {
+     "code": "99213",
+     "type": "CPT"
+    },
+    {
+     "code": "0510",
+     "type": "RC"
+    }
+   ],
+   "standard_charges": [
+    {
+     "setting": "outpatient",
+     "billing_class": "both",
+     "gross_charge": 200,
+     "discounted_cash": 150,
+     "minimum": 80,
+     "maximum": 120,
+     "modifier_code": [
+      "25"
+     ],
+     "payers_information": [
+      {
+       "payer_name": "Aetna",
+       "plan_name": "PPO",
+       "standard_charge_dollar": 100,
+       "methodology": "fee schedule",
+       "median_amount": 98,
+       "count": "1 through 10"
+      },
+      {
+       "payer_name": "Self Pay",
+       "plan_name": "Cash",
+       "standard_charge_dollar": 140
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "modifier_information": [
+  {
+   "code": "25",
+   "description": "Separate E/M service",
+   "setting": "outpatient",
+   "modifier_payer_information": [
+    {
+     "payer_name": "Aetna",
+     "plan_name": "PPO",
+     "description": "Paid at 100%"
+    }
+   ]
+  }
+ ]
+}

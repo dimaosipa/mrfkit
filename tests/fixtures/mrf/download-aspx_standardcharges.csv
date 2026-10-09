@@ -1,0 +1,4 @@
+hospital_name,CMS Certification Number,last_updated_on,version,hospital_location,hospital_address,,,,,,,,,,
+cms cert test hospital,H1234,01/01/2026,2.0.0,CMS Cert Test Hospital,"200 Hospital Blvd,Testtown,TX,75000",,,,,,,,,,
+description,code|1,code|1|type,setting,standard_charge|gross,standard_charge|discounted_cash,standard_charge|BlueCross|PPO|negotiated_dollar,standard_charge|BlueCross|PPO|methodology
+Chest X-Ray,71046,CPT,outpatient,180.00,108.00,144.00,fee schedule

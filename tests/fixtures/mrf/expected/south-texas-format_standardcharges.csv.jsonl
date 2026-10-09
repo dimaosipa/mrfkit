@@ -1,0 +1,25 @@
+{"attestation": null, "attester_name": null, "cms_certification_number": null, "confirm_attestation": null, "ein": null, "hospital_address": null, "hospital_location": null, "hospital_name": "South Texas Health System", "last_updated_on": "6/1/2021", "license_number": null, "license_state": null, "type": "file_metadata", "type_2_npi": null, "version": null}
+{"mapped_to": "hospital_name", "normalized": "facility", "source_header": "Facility", "type": "header_mappings"}
+{"mapped_to": null, "normalized": "cdm", "source_header": "CDM", "type": "header_mappings"}
+{"mapped_to": null, "normalized": "type", "source_header": "Type", "type": "header_mappings"}
+{"mapped_to": "code", "normalized": "code", "source_header": "Code", "type": "header_mappings"}
+{"mapped_to": "description", "normalized": "description", "source_header": "Description", "type": "header_mappings"}
+{"mapped_to": "gross_charge", "normalized": "gross_charge", "source_header": " Gross Charge ", "type": "header_mappings"}
+{"mapped_to": "discounted_cash_price", "normalized": "cash_price", "source_header": " Cash Price ", "type": "header_mappings"}
+{"mapped_to": null, "normalized": "aetna_commercial", "source_header": " AETNA COMMERCIAL ", "type": "header_mappings"}
+{"additional_generic_notes": null, "billing_class": "", "code": "C1713", "code_type": "HCPCS", "description": "SCREW 4.7X45MM", "drug_type_of_measurement": null, "drug_unit_of_measurement": null, "modifiers": null, "setting": "", "type": "charge_items"}
+{"billing_class": "", "code": "C1713", "code_type": "HCPCS", "description": "SCREW 4.7X45MM", "discounted_cash_price": 1141.0, "gross_charge": 2852.0, "max_negotiated_rate": null, "min_negotiated_rate": null, "modifiers": null, "setting": "", "type": "standard_charges"}
+{"billing_class": "", "code": "C1713", "code_type": "HCPCS", "description": "SCREW 4.7X45MM", "modifiers": null, "setting": "", "source_column": "Type", "type": "unmapped_cells", "value": "CPT"}
+{"billing_class": "", "code": "C1713", "code_type": "HCPCS", "description": "SCREW 4.7X45MM", "modifiers": null, "setting": "", "source_column": " AETNA COMMERCIAL ", "type": "unmapped_cells", "value": "$950"}
+{"additional_generic_notes": null, "billing_class": "", "code": "99213", "code_type": "CPT", "description": "Office Visit Level 3", "drug_type_of_measurement": null, "drug_unit_of_measurement": null, "modifiers": null, "setting": "", "type": "charge_items"}
+{"billing_class": "", "code": "99213", "code_type": "CPT", "description": "Office Visit Level 3", "discounted_cash_price": 118.0, "gross_charge": 294.0, "max_negotiated_rate": null, "min_negotiated_rate": null, "modifiers": null, "setting": "", "type": "standard_charges"}
+{"billing_class": "", "code": "99213", "code_type": "CPT", "description": "Office Visit Level 3", "modifiers": null, "setting": "", "source_column": "Type", "type": "unmapped_cells", "value": "CPT"}
+{"billing_class": "", "code": "99213", "code_type": "CPT", "description": "Office Visit Level 3", "modifiers": null, "setting": "", "source_column": " AETNA COMMERCIAL ", "type": "unmapped_cells", "value": "$200"}
+{"additional_generic_notes": null, "billing_class": "", "code": "C1776", "code_type": "HCPCS", "description": "SHELL G7 3H NOCEMENT 60MM G", "drug_type_of_measurement": null, "drug_unit_of_measurement": null, "modifiers": null, "setting": "", "type": "charge_items"}
+{"billing_class": "", "code": "C1776", "code_type": "HCPCS", "description": "SHELL G7 3H NOCEMENT 60MM G", "discounted_cash_price": 1437.0, "gross_charge": 3592.0, "max_negotiated_rate": null, "min_negotiated_rate": null, "modifiers": null, "setting": "", "type": "standard_charges"}
+{"billing_class": "", "code": "C1776", "code_type": "HCPCS", "description": "SHELL G7 3H NOCEMENT 60MM G", "modifiers": null, "setting": "", "source_column": "Type", "type": "unmapped_cells", "value": "CPT"}
+{"billing_class": "", "code": "C1776", "code_type": "HCPCS", "description": "SHELL G7 3H NOCEMENT 60MM G", "modifiers": null, "setting": "", "source_column": " AETNA COMMERCIAL ", "type": "unmapped_cells", "value": "$1"}
+{"additional_generic_notes": null, "billing_class": "", "code": null, "code_type": null, "description": "SCREW LOCKING 1.5X9MM", "drug_type_of_measurement": null, "drug_unit_of_measurement": null, "modifiers": null, "setting": "", "type": "charge_items"}
+{"billing_class": "", "code": null, "code_type": null, "description": "SCREW LOCKING 1.5X9MM", "discounted_cash_price": 333.0, "gross_charge": 832.0, "max_negotiated_rate": null, "min_negotiated_rate": null, "modifiers": null, "setting": "", "type": "standard_charges"}
+{"billing_class": "", "code": null, "code_type": null, "description": "SCREW LOCKING 1.5X9MM", "modifiers": null, "setting": "", "source_column": "Type", "type": "unmapped_cells", "value": "CPT"}
+{"billing_class": "", "code": null, "code_type": null, "description": "SCREW LOCKING 1.5X9MM", "modifiers": null, "setting": "", "source_column": " AETNA COMMERCIAL ", "type": "unmapped_cells", "value": "$750"}
