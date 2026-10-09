@@ -9,6 +9,7 @@ each record as the matching call, so those tests check mrfkit unchanged.
 import logging
 
 from mrfkit.csv_reader import iter_csv
+from mrfkit.json_reader import records_from_items
 from mrfkit.records import (
     ChargeItem, FileMetadata, HeaderMapping, PayerRate, StandardCharge, UnmappedCell,
 )
@@ -28,6 +29,22 @@ class _Forward(logging.Handler):
 def parse_csv_to_staging(file_handle, ingestor, hospital_id=1, run_id=1, log=print,
                          prescan_info=None, ingest_config=None, db_synonyms=None):
     config = ingest_config or {}
+    return _run(lambda stats: iter_csv(
+        file_handle, header_overrides=config.get("header_overrides"),
+        code_extraction=config.get("code_extraction"), extra_synonyms=db_synonyms,
+        stats=stats), ingestor, hospital_id, run_id, log, ingest_config)
+
+
+def _process_json_items_to_staging(items_iter, ingestor, hospital_id=1, run_id=1, log=print,
+                                   ingest_config=None):
+    config = ingest_config or {}
+    return _run(lambda stats: records_from_items(
+        items_iter, header_overrides=config.get("header_overrides"),
+        code_extraction=config.get("code_extraction"), stats=stats),
+        ingestor, hospital_id, run_id, log, ingest_config)
+
+
+def _run(read, ingestor, hospital_id, run_id, log, ingest_config):
     stats = ParseStats()
     logger = logging.getLogger("mrfkit")
     handler, old_level = _Forward(log), logger.level
@@ -35,9 +52,7 @@ def parse_csv_to_staging(file_handle, ingestor, hospital_id=1, run_id=1, log=pri
     logger.setLevel(logging.DEBUG)
     mappings = []
     try:
-        for record in iter_csv(file_handle, header_overrides=config.get("header_overrides"),
-                               code_extraction=config.get("code_extraction"),
-                               extra_synonyms=db_synonyms, stats=stats):
+        for record in read(stats):
             if isinstance(record, HeaderMapping):
                 mappings.append((record.source_header, record.normalized, record.mapped_to))
             else:

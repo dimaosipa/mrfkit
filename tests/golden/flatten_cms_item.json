@@ -1,0 +1,502 @@
+[
+  {
+    "id": "empty_object",
+    "description": "Empty input object returns empty list",
+    "input": {"obj": {}},
+    "expected": {"rows": []}
+  },
+  {
+    "id": "code_only_no_charges",
+    "description": "Code info but no charges, single row with null pricing",
+    "input": {
+      "obj": {
+        "description": "Office Visit",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": []
+      }
+    },
+    "expected": {
+      "rows": [{
+        "description": "Office Visit",
+        "code": "99213",
+        "code_type": "CPT",
+        "gross_charge": null,
+        "discounted_cash_price": null,
+        "min_negotiated_rate": null,
+        "max_negotiated_rate": null,
+        "billing_class": "",
+        "setting": "",
+        "modifiers": null,
+        "drug_unit_of_measurement": null,
+        "drug_type_of_measurement": null,
+        "payers": []
+      }]
+    }
+  },
+  {
+    "id": "single_charge_facility",
+    "description": "Single charge entry with facility billing",
+    "input": {
+      "obj": {
+        "description": "CT Scan",
+        "code_information": [{"code": "70551", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 1500.00,
+          "discounted_cash": 750.00,
+          "billing_class": "facility",
+          "setting": "outpatient"
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "description": "CT Scan",
+        "code": "70551",
+        "code_type": "CPT",
+        "gross_charge": "1500.0",
+        "discounted_cash_price": "750.0",
+        "min_negotiated_rate": null,
+        "max_negotiated_rate": null,
+        "billing_class": "facility",
+        "setting": "outpatient",
+        "modifiers": null,
+        "drug_unit_of_measurement": null,
+        "drug_type_of_measurement": null,
+        "payers": []
+      }]
+    }
+  },
+  {
+    "id": "multiple_codes_best_priority",
+    "description": "Multiple codes, CPT preferred over RC (priority 0 < 2)",
+    "input": {
+      "obj": {
+        "description": "Lab Test",
+        "code_information": [
+          {"code": "0301", "type": "RC"},
+          {"code": "80053", "type": "CPT"}
+        ],
+        "standard_charges": [{
+          "gross_charge": 200,
+          "billing_class": "facility"
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "description": "Lab Test",
+        "code": "80053",
+        "code_type": "CPT",
+        "gross_charge": "200",
+        "discounted_cash_price": null,
+        "min_negotiated_rate": null,
+        "max_negotiated_rate": null,
+        "billing_class": "facility",
+        "setting": "",
+        "modifiers": null,
+        "drug_unit_of_measurement": null,
+        "drug_type_of_measurement": null,
+        "payers": []
+      }]
+    }
+  },
+  {
+    "id": "drug_information",
+    "description": "Drug info populated from drug_information field",
+    "input": {
+      "obj": {
+        "description": "Insulin",
+        "code_information": [{"code": "00169183311", "type": "NDC"}],
+        "drug_information": {"unit": "ML", "type": "GR"},
+        "standard_charges": [{
+          "gross_charge": 50.00,
+          "billing_class": "professional"
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "description": "Insulin",
+        "code": "00169183311",
+        "code_type": "NDC",
+        "gross_charge": "50.0",
+        "discounted_cash_price": null,
+        "min_negotiated_rate": null,
+        "max_negotiated_rate": null,
+        "billing_class": "professional",
+        "setting": "",
+        "modifiers": null,
+        "drug_unit_of_measurement": "ML",
+        "drug_type_of_measurement": "GR",
+        "payers": []
+      }]
+    }
+  },
+  {
+    "id": "multiple_billing_classes",
+    "description": "Different billing classes produce separate rows",
+    "input": {
+      "obj": {
+        "description": "Surgery",
+        "code_information": [{"code": "27447", "type": "CPT"}],
+        "standard_charges": [
+          {"gross_charge": 50000, "billing_class": "facility", "setting": "inpatient"},
+          {"gross_charge": 5000, "billing_class": "professional", "setting": "inpatient"}
+        ]
+      }
+    },
+    "expected": {
+      "row_count": 2,
+      "rows_unordered": [
+        {
+          "billing_class": "facility",
+          "setting": "inpatient",
+          "gross_charge": "50000"
+        },
+        {
+          "billing_class": "professional",
+          "setting": "inpatient",
+          "gross_charge": "5000"
+        }
+      ]
+    }
+  },
+  {
+    "id": "payer_information",
+    "description": "Payer information collected from standard_charges",
+    "input": {
+      "obj": {
+        "description": "Office Visit",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 300,
+          "billing_class": "professional",
+          "setting": "outpatient",
+          "payers_information": [
+            {"payer_name": "Aetna", "plan_name": "HMO", "standard_charge_dollar": 150},
+            {"payer_name": "Cigna", "plan_name": "PPO", "standard_charge_dollar": 175}
+          ]
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "description": "Office Visit",
+        "code": "99213",
+        "code_type": "CPT",
+        "billing_class": "professional",
+        "setting": "outpatient",
+        "payer_count": 2
+      }]
+    }
+  },
+  {
+    "id": "modifiers_as_list",
+    "description": "Modifiers list joined with commas",
+    "input": {
+      "obj": {
+        "description": "Procedure",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 300,
+          "billing_class": "professional",
+          "modifiers": ["26", "TC"]
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "modifiers": "26,TC"
+      }]
+    }
+  },
+  {
+    "id": "modifiers_as_string",
+    "description": "Modifiers string preserved as-is",
+    "input": {
+      "obj": {
+        "description": "Procedure",
+        "code_information": [{"code": "99214", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 400,
+          "billing_class": "professional",
+          "modifiers": "26"
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "modifiers": "26"
+      }]
+    }
+  },
+  {
+    "id": "invalid_billing_class_to_empty",
+    "description": "Invalid billing_class value normalized to empty string",
+    "input": {
+      "obj": {
+        "description": "Test",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 100,
+          "billing_class": "invalid"
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "billing_class": "",
+        "gross_charge": "100"
+      }]
+    }
+  },
+  {
+    "id": "merge_same_billing_class_setting",
+    "description": "Same (billing_class, setting) entries merged, first-wins for gross, second fills cash",
+    "input": {
+      "obj": {
+        "description": "Merged",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [
+          {"gross_charge": 100, "billing_class": "facility", "setting": "outpatient"},
+          {"discounted_cash": 50, "billing_class": "facility", "setting": "outpatient"}
+        ]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "gross_charge": "100",
+        "discounted_cash_price": "50",
+        "billing_class": "facility",
+        "setting": "outpatient"
+      }]
+    }
+  },
+  {
+    "id": "min_max_rates",
+    "description": "Minimum and maximum negotiated rates extracted",
+    "input": {
+      "obj": {
+        "description": "Rates",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "minimum": 100,
+          "maximum": 500,
+          "billing_class": "professional"
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "min_negotiated_rate": "100",
+        "max_negotiated_rate": "500",
+        "billing_class": "professional"
+      }]
+    }
+  },
+  {
+    "id": "empty_drug_info",
+    "description": "Empty drug_information dict → drug fields are None",
+    "input": {
+      "obj": {
+        "description": "Drug2",
+        "code_information": [{"code": "12345", "type": "NDC"}],
+        "drug_information": {},
+        "standard_charges": [{"gross_charge": 10, "billing_class": "professional"}]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "drug_unit_of_measurement": null,
+        "drug_type_of_measurement": null
+      }]
+    }
+  },
+  {
+    "id": "code_normalized_through_normalize_code",
+    "description": "Code passes through normalize_code(), e.g., HCPCS code '99213' reclassified to CPT",
+    "input": {
+      "obj": {
+        "description": "Visit",
+        "code_information": [{"code": "99213", "type": "HCPCS"}],
+        "standard_charges": [{"gross_charge": 200, "billing_class": "professional"}]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "code": "99213",
+        "code_type": "CPT"
+      }]
+    }
+  },
+  {
+    "id": "modifier_code_json_key",
+    "description": "CMS 3.0 uses modifier_code instead of modifiers, _json_get resolves it",
+    "input": {
+      "obj": {
+        "description": "Procedure with modifier_code",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 300,
+          "billing_class": "professional",
+          "modifier_code": ["26"]
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "modifiers": "26",
+        "billing_class": "professional"
+      }]
+    }
+  },
+  {
+    "id": "billing_class_both_expands",
+    "description": "billing_class 'both' expands into two rows: facility and professional",
+    "input": {
+      "obj": {
+        "description": "Bilateral procedure",
+        "code_information": [{"code": "27447", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 5000,
+          "discounted_cash": 2500,
+          "billing_class": "both",
+          "setting": "outpatient",
+          "payers_information": [
+            {"payer_name": "Aetna", "plan_name": "HMO", "standard_charge_dollar": 3000}
+          ]
+        }]
+      }
+    },
+    "expected": {
+      "row_count": 2,
+      "rows_unordered": [
+        {
+          "billing_class": "facility",
+          "setting": "outpatient",
+          "gross_charge": "5000",
+          "discounted_cash_price": "2500"
+        },
+        {
+          "billing_class": "professional",
+          "setting": "outpatient",
+          "gross_charge": "5000",
+          "discounted_cash_price": "2500"
+        }
+      ]
+    }
+  },
+  {
+    "id": "different_modifiers_separate_rows",
+    "description": "Same billing_class/setting but different modifiers produce separate rows",
+    "input": {
+      "obj": {
+        "description": "Imaging",
+        "code_information": [{"code": "70551", "type": "CPT"}],
+        "standard_charges": [
+          {"gross_charge": 1000, "billing_class": "facility", "setting": "outpatient", "modifiers": ["26"]},
+          {"gross_charge": 800, "billing_class": "facility", "setting": "outpatient", "modifiers": ["TC"]}
+        ]
+      }
+    },
+    "expected": {
+      "row_count": 2,
+      "rows_unordered": [
+        {
+          "billing_class": "facility",
+          "setting": "outpatient",
+          "modifiers": "26",
+          "gross_charge": "1000"
+        },
+        {
+          "billing_class": "facility",
+          "setting": "outpatient",
+          "modifiers": "TC",
+          "gross_charge": "800"
+        }
+      ]
+    }
+  },
+  {
+    "id": "discounted_cash_price_json_key",
+    "description": "discounted_cash_price as JSON key (alternate form) is recognized",
+    "input": {
+      "obj": {
+        "description": "Alt cash key",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 300,
+          "discounted_cash_price": 150,
+          "billing_class": "professional"
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "discounted_cash_price": "150",
+        "gross_charge": "300"
+      }]
+    }
+  },
+  {
+    "id": "min_max_short_keys",
+    "description": "min/max short keys recognized as min/max_negotiated_rate",
+    "input": {
+      "obj": {
+        "description": "Short keys",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "min": 80,
+          "max": 400,
+          "billing_class": "professional"
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "min_negotiated_rate": "80",
+        "max_negotiated_rate": "400"
+      }]
+    }
+  },
+  {
+    "id": "empty_list_modifiers_normalized_to_none",
+    "description": "Empty modifier list [] should normalize to null (not crash)",
+    "input": {
+      "obj": {
+        "description": "Empty modifiers",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 200,
+          "billing_class": "professional",
+          "modifiers": []
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "modifiers": null
+      }]
+    }
+  },
+  {
+    "id": "whitespace_only_modifiers_normalized",
+    "description": "Modifier list with whitespace-only entries normalized to null",
+    "input": {
+      "obj": {
+        "description": "Whitespace modifiers",
+        "code_information": [{"code": "99213", "type": "CPT"}],
+        "standard_charges": [{
+          "gross_charge": 200,
+          "billing_class": "professional",
+          "modifiers": ["", " ", "  "]
+        }]
+      }
+    },
+    "expected": {
+      "rows": [{
+        "modifiers": null
+      }]
+    }
+  }
+]
