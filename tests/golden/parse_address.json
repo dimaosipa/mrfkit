@@ -1,0 +1,140 @@
+[
+  {
+    "id": "null_input",
+    "description": "None input returns all None",
+    "input": {"raw": null},
+    "expected": {"street": null, "city": null, "state": null, "zip": null}
+  },
+  {
+    "id": "empty_string",
+    "description": "Empty string returns all None",
+    "input": {"raw": ""},
+    "expected": {"street": null, "city": null, "state": null, "zip": null}
+  },
+  {
+    "id": "whitespace_only",
+    "description": "Whitespace-only returns all None",
+    "input": {"raw": "   "},
+    "expected": {"street": null, "city": null, "state": null, "zip": null}
+  },
+  {
+    "id": "full_address_comma_separated",
+    "description": "Standard comma-separated: street, city, state zip",
+    "input": {"raw": "170 Alameda de las Pulgas, Redwood City, CA 94062"},
+    "expected": {"street": "170 Alameda de las Pulgas", "city": "Redwood City", "state": "CA", "zip": "94062"}
+  },
+  {
+    "id": "no_spaces_after_commas",
+    "description": "Commas without spaces: Greenbrae,CA,94904",
+    "input": {"raw": "250 Bon Air Rd,Greenbrae,CA,94904"},
+    "expected": {"street": "250 Bon Air Rd", "city": "Greenbrae", "state": "CA", "zip": "94904"}
+  },
+  {
+    "id": "multi_segment_street",
+    "description": "Street with box number - rsplit on last comma before state",
+    "input": {"raw": "505 Parnassus Ave, Box 0296, San Francisco, CA 94143"},
+    "expected": {"street": "505 Parnassus Ave, Box 0296", "city": "San Francisco", "state": "CA", "zip": "94143"}
+  },
+  {
+    "id": "no_commas",
+    "description": "No commas - street only, no city extracted",
+    "input": {"raw": "2000 Mowry Ave Fremont CA 94538"},
+    "expected": {"street": "2000 Mowry Ave Fremont", "city": null, "state": "CA", "zip": "94538"}
+  },
+  {
+    "id": "quoted_address",
+    "description": "Outer quotes stripped before parsing",
+    "input": {"raw": "\"170 Alameda de las Pulgas, Redwood City, CA 94062\""},
+    "expected": {"street": "170 Alameda de las Pulgas", "city": "Redwood City", "state": "CA", "zip": "94062"}
+  },
+  {
+    "id": "state_only_no_zip",
+    "description": "State at end without ZIP - fallback regex",
+    "input": {"raw": "1 Hospital Way, Sacramento, CA"},
+    "expected": {"street": "1 Hospital Way", "city": "Sacramento", "state": "CA", "zip": null}
+  },
+  {
+    "id": "no_state_no_zip",
+    "description": "No state or zip - raw stored as street",
+    "input": {"raw": "123 Main St"},
+    "expected": {"street": "123 Main St", "city": null, "state": null, "zip": null}
+  },
+  {
+    "id": "zip_plus_4",
+    "description": "ZIP+4 format (97201-1234) recognized",
+    "input": {"raw": "456 Oak Ave, Portland, OR 97201-1234"},
+    "expected": {"street": "456 Oak Ave", "city": "Portland", "state": "OR", "zip": "97201-1234"}
+  },
+  {
+    "id": "apartment_in_street",
+    "description": "Apt in multi-segment street - rsplit keeps it in street",
+    "input": {"raw": "789 Elm Blvd, Apt 4B, New York, NY 10001"},
+    "expected": {"street": "789 Elm Blvd, Apt 4B", "city": "New York", "state": "NY", "zip": "10001"}
+  },
+  {
+    "id": "simple_city_state_zip",
+    "description": "Simple city, state, zip",
+    "input": {"raw": "100 First St, San Jose, CA 95113"},
+    "expected": {"street": "100 First St", "city": "San Jose", "state": "CA", "zip": "95113"}
+  },
+  {
+    "id": "rural_route",
+    "description": "Rural route with city, state, zip",
+    "input": {"raw": "Rural Route 5, Helena, MT 59601"},
+    "expected": {"street": "Rural Route 5", "city": "Helena", "state": "MT", "zip": "59601"}
+  },
+  {
+    "id": "dc_address",
+    "description": "DC recognized as state abbreviation",
+    "input": {"raw": "1600 Pennsylvania Ave NW, Washington, DC 20500"},
+    "expected": {"street": "1600 Pennsylvania Ave NW", "city": "Washington", "state": "DC", "zip": "20500"}
+  },
+  {
+    "id": "suite_in_street",
+    "description": "Suite number in multi-segment street",
+    "input": {"raw": "255 Berry St, Suite 300, San Francisco, CA 94158"},
+    "expected": {"street": "255 Berry St, Suite 300", "city": "San Francisco", "state": "CA", "zip": "94158"}
+  },
+  {
+    "id": "full_state_name_with_zip_plus_4",
+    "description": "Full state name (CALIFORNIA) with ZIP+4 recognized",
+    "input": {"raw": "1001 POTRERO AVE, SAN FRANCISCO, CALIFORNIA 94110-3518"},
+    "expected": {"street": "1001 POTRERO AVE", "city": "SAN FRANCISCO", "state": "CA", "zip": "94110-3518"}
+  },
+  {
+    "id": "full_state_name_hawaii",
+    "description": "Full state name (HAWAII) with ZIP recognized",
+    "input": {"raw": "3288 MOANALUA ROAD, HONOLULU, HAWAII 96819"},
+    "expected": {"street": "3288 MOANALUA ROAD", "city": "HONOLULU", "state": "HI", "zip": "96819"}
+  },
+  {
+    "id": "reversed_zip_state_no_commas",
+    "description": "ZIP before state at end, no commas - city not extractable",
+    "input": {"raw": "4601 DALE RD MODESTO 95356 CA"},
+    "expected": {"street": "4601 DALE RD MODESTO", "city": null, "state": "CA", "zip": "95356"}
+  },
+  {
+    "id": "inverted_pipe_state_zip_no_comma",
+    "description": "inverted 'STATE ZIP | street city' fold - state/zip prefix moved to end; street preserved",
+    "input": {"raw": "MS 38827 | 351 Peoples Dr Pontotoc"},
+    "expected": {"street": "351 Peoples Dr Pontotoc", "city": null, "state": "MS", "zip": "38827"}
+  },
+  {
+    "id": "inverted_pipe_state_zip_with_comma",
+    "description": "inverted pipe form with a comma before city - city extracted",
+    "input": {"raw": "MS 38827 | 351 Peoples Dr, Pontotoc"},
+    "expected": {"street": "351 Peoples Dr", "city": "Pontotoc", "state": "MS", "zip": "38827"}
+  },
+  {
+    "id": "pipe_left_not_state_zip_untouched",
+    "description": "guard: a pipe whose left side is NOT a bare state+zip is left untouched (normal trailing-state parse)",
+    "input": {"raw": "Main Campus | 100 Foo St, Bar, CA 90001"},
+    "expected": {"street": "Main Campus | 100 Foo St", "city": "Bar", "state": "CA", "zip": "90001"}
+  },
+  {
+    "id": "inverted_pipe_lowercase_left",
+    "description": "inverted pipe form with a lowercase state+zip prefix - normalized via .upper() and recovered",
+    "input": {"raw": "ms 38827 | 351 Peoples Dr Pontotoc"},
+    "expected": {"street": "351 Peoples Dr Pontotoc", "city": null, "state": "MS", "zip": "38827"}
+  }
+]

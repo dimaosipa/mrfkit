@@ -1,0 +1,1185 @@
+[
+  {
+    "id": "none_plan",
+    "description": "None plan returns Other",
+    "input": {"raw_plan": null, "payer_canonical": "Aetna"},
+    "expected": "Other"
+  },
+  {
+    "id": "empty_plan",
+    "description": "Empty plan returns Other",
+    "input": {"raw_plan": "", "payer_canonical": "Aetna"},
+    "expected": "Other"
+  },
+  {
+    "id": "whitespace_plan",
+    "description": "Whitespace-only plan returns Other",
+    "input": {"raw_plan": "  ", "payer_canonical": "Aetna"},
+    "expected": "Other"
+  },
+
+  {
+    "id": "medi_cal_hyphenated",
+    "description": "Medi-Cal recognized",
+    "input": {"raw_plan": "Medi-Cal", "payer_canonical": "Aetna"},
+    "expected": "Medi-Cal"
+  },
+  {
+    "id": "medical_word",
+    "description": "MEDICAL (exact match) maps to Medi-Cal",
+    "input": {"raw_plan": "MEDICAL", "payer_canonical": "Aetna"},
+    "expected": "Medi-Cal"
+  },
+  {
+    "id": "managed_medi_cal",
+    "description": "Managed Medi-Cal recognized",
+    "input": {"raw_plan": "Managed Medi-Cal", "payer_canonical": "Aetna"},
+    "expected": "Medi-Cal"
+  },
+  {
+    "id": "medicaid_recognized",
+    "description": "MEDICAID maps to Medi-Cal",
+    "input": {"raw_plan": "MEDICAID", "payer_canonical": "Aetna"},
+    "expected": "Medi-Cal"
+  },
+  {
+    "id": "bracket_medicaid_stripped_to_empty",
+    "description": "[Medicaid] matched by contract ID regex first, resulting in empty → Other",
+    "input": {"raw_plan": "[Medicaid]", "payer_canonical": "Aetna"},
+    "expected": "Other"
+  },
+
+  {
+    "id": "government",
+    "description": "GOVERNMENT maps to Government",
+    "input": {"raw_plan": "GOVERNMENT", "payer_canonical": "Aetna"},
+    "expected": "Government"
+  },
+  {
+    "id": "government_program",
+    "description": "GOVERNMENT PROGRAM maps to Government",
+    "input": {"raw_plan": "GOVERNMENT PROGRAM", "payer_canonical": "Aetna"},
+    "expected": "Government"
+  },
+
+  {
+    "id": "medicare_advantage_generic",
+    "description": "Medicare Advantage maps to Medicare Advantage",
+    "input": {"raw_plan": "Medicare Advantage", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "medicare_adv_sutter_format",
+    "description": "Sutter underscore-separated format normalized",
+    "input": {"raw_plan": "Medicare Adv_ Hmo / Ppo", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "medicare_advantage_ppo",
+    "description": "Medicare Advantage with PPO qualifier",
+    "input": {"raw_plan": "MEDICARE ADVANTAGE (PPO)", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage PPO"
+  },
+  {
+    "id": "medicare_advantage_hmo",
+    "description": "Medicare Advantage with HMO qualifier",
+    "input": {"raw_plan": "MEDICARE ADVANTAGE (HMO)", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage HMO"
+  },
+  {
+    "id": "mcr_adv",
+    "description": "MCR ADV abbreviation maps to Medicare Advantage",
+    "input": {"raw_plan": "MCR ADV", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "dsnp",
+    "description": "D-SNP maps to Medicare Advantage",
+    "input": {"raw_plan": "D-SNP", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "dual",
+    "description": "DUAL maps to Medicare Advantage",
+    "input": {"raw_plan": "DUAL", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "medicare_managed_care",
+    "description": "Medicare Managed Care Plan → Medicare Advantage",
+    "input": {"raw_plan": "Medicare Managed Care Plan", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "pace",
+    "description": "PACE maps to Medicare PACE",
+    "input": {"raw_plan": "PACE", "payer_canonical": "Aetna"},
+    "expected": "Medicare PACE"
+  },
+
+  {
+    "id": "covered_california",
+    "description": "Covered California recognized",
+    "input": {"raw_plan": "Covered California", "payer_canonical": "Aetna"},
+    "expected": "Covered California"
+  },
+  {
+    "id": "covered_ca_abbrev",
+    "description": "COVERED CA abbreviation recognized",
+    "input": {"raw_plan": "COVERED CA", "payer_canonical": "Aetna"},
+    "expected": "Covered California"
+  },
+
+  {
+    "id": "transplant",
+    "description": "TRANSPLANT maps to Transplant",
+    "input": {"raw_plan": "TRANSPLANT", "payer_canonical": "Aetna"},
+    "expected": "Transplant"
+  },
+  {
+    "id": "donor_network",
+    "description": "DONOR NETWORK maps to Transplant",
+    "input": {"raw_plan": "DONOR NETWORK", "payer_canonical": "Aetna"},
+    "expected": "Transplant"
+  },
+
+  {
+    "id": "employee",
+    "description": "EMPLOYEE maps to Employee",
+    "input": {"raw_plan": "EMPLOYEE", "payer_canonical": "Aetna"},
+    "expected": "Employee"
+  },
+  {
+    "id": "employee_plan",
+    "description": "EMPLOYEE PLAN maps to Employee",
+    "input": {"raw_plan": "EMPLOYEE PLAN", "payer_canonical": "Aetna"},
+    "expected": "Employee"
+  },
+
+  {
+    "id": "behavioral_health",
+    "description": "BEHAVIORAL HEALTH recognized",
+    "input": {"raw_plan": "BEHAVIORAL HEALTH", "payer_canonical": "Aetna"},
+    "expected": "Behavioral Health"
+  },
+  {
+    "id": "eap",
+    "description": "EAP maps to Behavioral Health",
+    "input": {"raw_plan": "EAP", "payer_canonical": "Aetna"},
+    "expected": "Behavioral Health"
+  },
+
+  {
+    "id": "commercial_hmo_ppo",
+    "description": "COMMERCIAL (HMO/PPO) maps to Commercial",
+    "input": {"raw_plan": "COMMERCIAL (HMO/PPO)", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "commercial_ppo",
+    "description": "COMMERCIAL (PPO) maps to Commercial PPO",
+    "input": {"raw_plan": "COMMERCIAL (PPO)", "payer_canonical": "Aetna"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "commercial_hmo",
+    "description": "COMMERCIAL (HMO) maps to Commercial HMO",
+    "input": {"raw_plan": "COMMERCIAL (HMO)", "payer_canonical": "Aetna"},
+    "expected": "Commercial HMO"
+  },
+  {
+    "id": "commercial_pos",
+    "description": "COMMERCIAL (POS) maps to Commercial POS",
+    "input": {"raw_plan": "COMMERCIAL (POS)", "payer_canonical": "Aetna"},
+    "expected": "Commercial POS"
+  },
+  {
+    "id": "commercial_epo",
+    "description": "COMMERCIAL (EPO) maps to Commercial PPO (EPO is PPO-equivalent)",
+    "input": {"raw_plan": "COMMERCIAL (EPO)", "payer_canonical": "Aetna"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "commercial_bare",
+    "description": "Bare COMMERCIAL maps to Commercial",
+    "input": {"raw_plan": "COMMERCIAL", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+
+  {
+    "id": "bare_hmo",
+    "description": "Bare HMO maps to Commercial HMO",
+    "input": {"raw_plan": "HMO", "payer_canonical": "Aetna"},
+    "expected": "Commercial HMO"
+  },
+  {
+    "id": "bare_ppo",
+    "description": "Bare PPO maps to Commercial PPO",
+    "input": {"raw_plan": "PPO", "payer_canonical": "Aetna"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "bare_epo",
+    "description": "Bare EPO maps to Commercial PPO",
+    "input": {"raw_plan": "EPO", "payer_canonical": "Aetna"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "bare_pos",
+    "description": "Bare POS maps to Commercial POS",
+    "input": {"raw_plan": "POS", "payer_canonical": "Aetna"},
+    "expected": "Commercial POS"
+  },
+  {
+    "id": "hmo_ppo_combined",
+    "description": "HMO/PPO combined maps to Commercial",
+    "input": {"raw_plan": "HMO/PPO", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "hmo_space_ppo",
+    "description": "HMO / PPO with spaces maps to Commercial",
+    "input": {"raw_plan": "HMO / PPO", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "ppo_epo_combined",
+    "description": "PPO/EPO combined maps to Commercial PPO",
+    "input": {"raw_plan": "PPO/EPO", "payer_canonical": "Aetna"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "individual",
+    "description": "INDIVIDUAL maps to Commercial",
+    "input": {"raw_plan": "INDIVIDUAL", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "all_commercial_plans",
+    "description": "ALL COMMERCIAL PLANS maps to Commercial",
+    "input": {"raw_plan": "ALL COMMERCIAL PLANS", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+
+  {
+    "id": "payer_specific_blue_shield_ppo",
+    "description": "Blue Shield Ppo with payer context → Commercial PPO",
+    "input": {"raw_plan": "Blue Shield Ppo", "payer_canonical": "Blue Shield of California"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "payer_specific_cigna_ppo",
+    "description": "Cigna Ppo with payer context → Commercial PPO",
+    "input": {"raw_plan": "Cigna Ppo", "payer_canonical": "Cigna"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "payer_specific_uhc_select_ppo",
+    "description": "United Healthcare Select Ppo → Commercial PPO",
+    "input": {"raw_plan": "United Healthcare Select Ppo", "payer_canonical": "United Healthcare"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "payer_specific_aetna_hmo",
+    "description": "AETNA HMO with payer context → Commercial HMO",
+    "input": {"raw_plan": "AETNA HMO", "payer_canonical": "Aetna"},
+    "expected": "Commercial HMO"
+  },
+
+  {
+    "id": "non_hmo_other_commercial",
+    "description": "non-HMO Other Commercial Plan → Commercial",
+    "input": {"raw_plan": "non-HMO Other Commercial Plan", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "all_other_plans",
+    "description": "ALL OTHER PLANS → Commercial",
+    "input": {"raw_plan": "ALL OTHER PLANS", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+
+  {
+    "id": "payer_name_as_plan_aetna",
+    "description": "Plan name same as payer → Commercial",
+    "input": {"raw_plan": "AETNA", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "payer_name_as_plan_cigna",
+    "description": "Plan name same as payer (Cigna) → Commercial",
+    "input": {"raw_plan": "CIGNA", "payer_canonical": "Cigna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "payer_name_as_plan_multiplan",
+    "description": "MULTIPLAN as plan → Commercial",
+    "input": {"raw_plan": "MULTIPLAN", "payer_canonical": "MultiPlan"},
+    "expected": "Commercial"
+  },
+
+  {
+    "id": "contract_id_stripped",
+    "description": "Contract ID in brackets stripped before classification",
+    "input": {"raw_plan": "Beacon Health Strategies [100510301]", "payer_canonical": "Beacon Health Strategies"},
+    "expected": "Commercial"
+  },
+
+  {
+    "id": "sfhss",
+    "description": "SFHSS → Commercial (SF Health Service System)",
+    "input": {"raw_plan": "SFHSS", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "fehb",
+    "description": "FEHB → Government (Federal Employee Health Benefits)",
+    "input": {"raw_plan": "FEHB", "payer_canonical": "Aetna"},
+    "expected": "Government",
+    "expected_category": "Government"
+  },
+
+  {"id": "--- SHORT ABBREVIATIONS ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "abbrev_mcr",
+    "description": "MCR abbreviation → Medicare Advantage",
+    "input": {"raw_plan": "MCR", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "abbrev_mcrpos",
+    "description": "MCRPOS abbreviation → Medicare Advantage",
+    "input": {"raw_plan": "MCRPOS", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "abbrev_mcrsnp",
+    "description": "MCRSNP abbreviation → Medicare Advantage",
+    "input": {"raw_plan": "MCRSNP", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "abbrev_mgmcr",
+    "description": "MGMCR (managed Medicare) → Medicare Advantage",
+    "input": {"raw_plan": "MGMCR", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "abbrev_pffs",
+    "description": "PFFS (Private Fee-For-Service) → Medicare Advantage",
+    "input": {"raw_plan": "PFFS", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "abbrev_dsnp",
+    "description": "DSNP abbreviation → Medicare Advantage",
+    "input": {"raw_plan": "DSNP", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "abbrev_mcd",
+    "description": "MCD (Medi-Cal/Medicaid) → Medi-Cal",
+    "input": {"raw_plan": "MCD", "payer_canonical": "Aetna"},
+    "expected": "Medi-Cal"
+  },
+  {
+    "id": "abbrev_mgmcd",
+    "description": "MGMCD (managed Medi-Cal) → Medi-Cal Managed Care",
+    "input": {"raw_plan": "MGMCD", "payer_canonical": "Aetna"},
+    "expected": "Medi-Cal Managed Care"
+  },
+  {
+    "id": "abbrev_wc",
+    "description": "WC → Workers Comp",
+    "input": {"raw_plan": "WC", "payer_canonical": "Aetna"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "abbrev_wcomp",
+    "description": "WCOMP → Workers Comp",
+    "input": {"raw_plan": "WCOMP", "payer_canonical": "Aetna"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "abbrev_com",
+    "description": "COM → Commercial",
+    "input": {"raw_plan": "COM", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "abbrev_comm",
+    "description": "COMM → Commercial",
+    "input": {"raw_plan": "COMM", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "abbrev_qhp",
+    "description": "QHP (Qualified Health Plan / ACA) → Marketplace",
+    "input": {"raw_plan": "QHP", "payer_canonical": "Aetna"},
+    "expected": "Marketplace"
+  },
+  {
+    "id": "abbrev_commbh",
+    "description": "COMMBH → Behavioral Health",
+    "input": {"raw_plan": "COMMBH", "payer_canonical": "Aetna"},
+    "expected": "Behavioral Health"
+  },
+  {
+    "id": "abbrev_cocm",
+    "description": "COCM (collaborative care mgmt) → Commercial",
+    "input": {"raw_plan": "COCM", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+
+  {"id": "--- WORKERS COMP VARIANTS ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "workers_comp_full",
+    "description": "Workers Comp full name",
+    "input": {"raw_plan": "Workers Comp", "payer_canonical": "Aetna"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "workers_compensation",
+    "description": "Workers Compensation full form",
+    "input": {"raw_plan": "WORKERS COMPENSATION", "payer_canonical": "Aetna"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "workers_comp_underscore",
+    "description": "Workers_Comp underscore form (Sutter-style)",
+    "input": {"raw_plan": "Workers_Comp", "payer_canonical": "Aetna"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "worker_comp_no_s",
+    "description": "Worker Comp (no trailing s)",
+    "input": {"raw_plan": "WORKER COMP", "payer_canonical": "Aetna"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "work_comp_short",
+    "description": "Work Comp short form",
+    "input": {"raw_plan": "WORK COMP", "payer_canonical": "Aetna"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "workers_comp_with_apostrophe",
+    "description": "Worker's Comp with apostrophe",
+    "input": {"raw_plan": "Worker's Comp", "payer_canonical": "Aetna"},
+    "expected": "Workers Comp"
+  },
+
+  {"id": "--- TRICARE ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "tricare_full",
+    "description": "TRICARE recognized",
+    "input": {"raw_plan": "TRICARE", "payer_canonical": "Aetna"},
+    "expected": "TRICARE"
+  },
+  {
+    "id": "tricare_lowercase",
+    "description": "tricare case-insensitive",
+    "input": {"raw_plan": "Tricare", "payer_canonical": "Aetna"},
+    "expected": "TRICARE"
+  },
+  {
+    "id": "tricare_east",
+    "description": "TRICARE EAST short form",
+    "input": {"raw_plan": "TRICARE EAST", "payer_canonical": "Aetna"},
+    "expected": "TRICARE"
+  },
+  {
+    "id": "tricare_west",
+    "description": "TRICARE WEST short form",
+    "input": {"raw_plan": "TRICARE WEST", "payer_canonical": "Aetna"},
+    "expected": "TRICARE"
+  },
+  {
+    "id": "tricare_abbrev_tri",
+    "description": "TRI abbreviation → TRICARE",
+    "input": {"raw_plan": "TRI", "payer_canonical": "Aetna"},
+    "expected": "TRICARE"
+  },
+  {
+    "id": "tricare_abbrev_trim",
+    "description": "TRIM abbreviation → TRICARE",
+    "input": {"raw_plan": "TRIM", "payer_canonical": "Aetna"},
+    "expected": "TRICARE"
+  },
+
+  {"id": "--- MEDI-CAL MANAGED CARE ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "mcalmc_sfgh_anthem",
+    "description": "SFGH delegation plan with Mcalmc → Medi-Cal Managed Care",
+    "input": {"raw_plan": "Anthem Blue Cross Non-Chn Mcalmc - Hill Physicians Mg", "payer_canonical": "Anthem Blue Cross"},
+    "expected": "Medi-Cal Managed Care"
+  },
+  {
+    "id": "mcalmc_sfgh_short",
+    "description": "SFGH plan with MCALMC suffix",
+    "input": {"raw_plan": "Blue Shield Mcalmc", "payer_canonical": "Blue Shield of California"},
+    "expected": "Medi-Cal Managed Care"
+  },
+  {
+    "id": "medi_cal_underscore",
+    "description": "Medi_Cal underscore form (Sutter-style) → Medi-Cal",
+    "input": {"raw_plan": "Medi_Cal", "payer_canonical": "Aetna"},
+    "expected": "Medi-Cal"
+  },
+
+  {"id": "--- MARKETPLACE / EXCHANGE ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "marketplace_hix_keyword",
+    "description": "HIX keyword → Marketplace",
+    "input": {"raw_plan": "Blue Shield HIX PPO", "payer_canonical": "Blue Shield of California"},
+    "expected": "Marketplace"
+  },
+  {
+    "id": "marketplace_exchange",
+    "description": "EXCHANGE keyword → Marketplace",
+    "input": {"raw_plan": "Health Exchange Plan", "payer_canonical": "Aetna"},
+    "expected": "Marketplace"
+  },
+  {
+    "id": "marketplace_ambetter",
+    "description": "Ambetter → Marketplace",
+    "input": {"raw_plan": "Ambetter Essential Care", "payer_canonical": "Molina Healthcare"},
+    "expected": "Marketplace"
+  },
+  {
+    "id": "marketplace_qhp_word",
+    "description": "QHP in plan name → Marketplace",
+    "input": {"raw_plan": "Aetna QHP Silver", "payer_canonical": "Aetna"},
+    "expected": "Marketplace"
+  },
+
+  {"id": "--- TENET CONCATENATED NAMES ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "concat_blueshieldhix",
+    "description": "Tenet concatenated: Blueshieldhix → Marketplace",
+    "input": {"raw_plan": "Blueshieldhix", "payer_canonical": "Blue Shield of California"},
+    "expected": "Marketplace"
+  },
+  {
+    "id": "concat_molinahix",
+    "description": "Tenet concatenated: Molinahix → Marketplace",
+    "input": {"raw_plan": "Molinahix", "payer_canonical": "Molina Healthcare"},
+    "expected": "Marketplace"
+  },
+  {
+    "id": "concat_molinamgdmcaid",
+    "description": "Tenet concatenated: Molinamgdmcaid → Medi-Cal Managed Care",
+    "input": {"raw_plan": "Molinamgdmcaid", "payer_canonical": "Molina Healthcare"},
+    "expected": "Medi-Cal Managed Care"
+  },
+  {
+    "id": "concat_cahealthandwellnessmgdmcaid",
+    "description": "Tenet concatenated: CaHealthAndWellnessMgdMcaid → Medi-Cal Managed Care",
+    "input": {"raw_plan": "Cahealthandwellnessmgdmcaid", "payer_canonical": "Health and Wellness"},
+    "expected": "Medi-Cal Managed Care"
+  },
+  {
+    "id": "concat_bluecrosswc",
+    "description": "Tenet concatenated: Bluecrosswc → Workers Comp",
+    "input": {"raw_plan": "Bluecrosswc", "payer_canonical": "Blue Cross"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "concat_corvelwc",
+    "description": "Tenet concatenated: Corvelwc → Workers Comp",
+    "input": {"raw_plan": "Corvelwc", "payer_canonical": "Corvel"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "concat_americaschoiceprovidernetworkwc",
+    "description": "Tenet concatenated: long WC plan → Workers Comp",
+    "input": {"raw_plan": "Americaschoiceprovidernetworkwc", "payer_canonical": "Americas Choice"},
+    "expected": "Workers Comp"
+  },
+  {
+    "id": "concat_blueshieldreciprocity",
+    "description": "Tenet concatenated: Blueshieldreciprocity → Commercial",
+    "input": {"raw_plan": "Blueshieldreciprocity", "payer_canonical": "Blue Shield of California"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "concat_aetnagatekeeper",
+    "description": "Tenet concatenated: Aetnagatekeeper → Commercial",
+    "input": {"raw_plan": "Aetnagatekeeper", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "concat_aetnanongatekeeper",
+    "description": "Tenet concatenated: Aetnanongatekeeper → Commercial",
+    "input": {"raw_plan": "Aetnanongatekeeper", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "concat_hillphysiciansancillary",
+    "description": "Tenet concatenated: Hillphysiciansancillary → Commercial",
+    "input": {"raw_plan": "Hillphysiciansancillary", "payer_canonical": "Hill Physicians"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "concat_bluecrossselect",
+    "description": "Tenet concatenated: Bluecrossselect → Commercial",
+    "input": {"raw_plan": "Bluecrossselect", "payer_canonical": "Blue Cross"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "concat_healthcomp_no_false_wc",
+    "description": "Healthcomp does NOT falsely match WC suffix (different payer)",
+    "input": {"raw_plan": "Healthcomp", "payer_canonical": "Aetna"},
+    "expected": "Healthcomp"
+  },
+
+  {"id": "--- JOHN MUIR INTERNAL CODES ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "jm_mc_pending_cigna_com_pb",
+    "description": "John Muir pending contract: MC PENDING CIGNA COM PB → Commercial",
+    "input": {"raw_plan": "Mc Pending Cigna Com Pb", "payer_canonical": "Cigna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "jm_mc_pending_aetna",
+    "description": "John Muir pending: MC PENDING AETNA → Commercial",
+    "input": {"raw_plan": "MC PENDING AETNA", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "jm_mc_ben_hum",
+    "description": "John Muir benefit: MC BEN HUM 076-356 (Humana MA) → Medicare Advantage",
+    "input": {"raw_plan": "Mc Ben Hum 076-356", "payer_canonical": "Humana"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "jm_mc_ben_scan",
+    "description": "John Muir benefit: MC BEN SCAN 101 (SCAN is MA) → Medicare Advantage",
+    "input": {"raw_plan": "MC BEN SCAN 101", "payer_canonical": "SCAN Health Plan"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "jm_mc_pending_generic",
+    "description": "John Muir pending generic → Commercial",
+    "input": {"raw_plan": "MC PENDING BLUECROSS 234", "payer_canonical": "Blue Cross"},
+    "expected": "Commercial"
+  },
+
+  {"id": "--- MANAGED CARE / VETERANS ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "managed_care_generic",
+    "description": "MANAGED CARE (generic) → Commercial",
+    "input": {"raw_plan": "Managed Care", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "managed_care_underscore",
+    "description": "Managed_Care underscore form → Commercial",
+    "input": {"raw_plan": "Managed_Care", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "veterans",
+    "description": "VETERANS → Government",
+    "input": {"raw_plan": "VETERANS", "payer_canonical": "VA"},
+    "expected": "Government"
+  },
+  {
+    "id": "veterans_affairs",
+    "description": "VETERANS AFFAIRS → Government",
+    "input": {"raw_plan": "Veterans Affairs", "payer_canonical": "VA"},
+    "expected": "Government"
+  },
+  {
+    "id": "veterans_administration",
+    "description": "Veterans Administration → Government",
+    "input": {"raw_plan": "VETERANS ADMINISTRATION", "payer_canonical": "VA"},
+    "expected": "Government"
+  },
+
+  {"id": "--- PAYER PREFIX STRIPPING ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "payer_prefix_anthem_bc_medicare",
+    "description": "Anthem Blue Cross Medicare → Medicare Advantage",
+    "input": {"raw_plan": "Anthem Blue Cross Medicare", "payer_canonical": "Anthem Blue Cross"},
+    "expected": "Medicare Advantage"
+  },
+  {
+    "id": "payer_prefix_healthnet_hmo",
+    "description": "Health Net HMO → Commercial HMO",
+    "input": {"raw_plan": "Health Net HMO", "payer_canonical": "Health Net"},
+    "expected": "Commercial HMO"
+  },
+  {
+    "id": "payer_prefix_humana_medi_cal",
+    "description": "Humana Medi-Cal → Medi-Cal",
+    "input": {"raw_plan": "Humana Medi-Cal", "payer_canonical": "Humana"},
+    "expected": "Medi-Cal"
+  },
+  {
+    "id": "payer_prefix_scan_sr_hmo",
+    "description": "SCAN SR HMO → Commercial HMO",
+    "input": {"raw_plan": "SCAN SR HMO", "payer_canonical": "SCAN Health Plan"},
+    "expected": "Commercial HMO"
+  },
+  {
+    "id": "payer_prefix_kaiser_ppo",
+    "description": "Kaiser Permanente PPO → Commercial PPO",
+    "input": {"raw_plan": "Kaiser Permanente PPO", "payer_canonical": "Kaiser Permanente"},
+    "expected": "Commercial PPO"
+  },
+
+  {"id": "--- CATCH-ALL PATTERNS ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "all_plans_pattern",
+    "description": "ALL PLANS → Commercial",
+    "input": {"raw_plan": "ALL PLANS", "payer_canonical": "Aetna"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "comm_suffix",
+    "description": "Plan ending with COMM → Commercial",
+    "input": {"raw_plan": "BLUE SHIELD COMM", "payer_canonical": "Blue Shield of California"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "behavioral_keyword",
+    "description": "BEHAVIORAL alone → Behavioral Health",
+    "input": {"raw_plan": "BEHAVIORAL", "payer_canonical": "Aetna"},
+    "expected": "Behavioral Health"
+  },
+  {
+    "id": "catch_all_ppo_in_name",
+    "description": "Plan with PPO embedded → Commercial PPO",
+    "input": {"raw_plan": "Network PPO Access", "payer_canonical": "Aetna"},
+    "expected": "Commercial PPO"
+  },
+  {
+    "id": "catch_all_hmo_in_name",
+    "description": "Plan with HMO embedded → Commercial HMO",
+    "input": {"raw_plan": "Network HMO Select", "payer_canonical": "Aetna"},
+    "expected": "Commercial HMO"
+  },
+
+  {"id": "--- PAYER-AS-PLAN NAMES ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "payer_as_plan_anthem",
+    "description": "ANTHEM as plan → Commercial",
+    "input": {"raw_plan": "ANTHEM", "payer_canonical": "Anthem Blue Cross"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "payer_as_plan_united",
+    "description": "UNITED HEALTHCARE as plan → Commercial",
+    "input": {"raw_plan": "UNITED HEALTHCARE", "payer_canonical": "United Healthcare"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "payer_as_plan_humana",
+    "description": "HUMANA as plan → Commercial",
+    "input": {"raw_plan": "HUMANA", "payer_canonical": "Humana"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "payer_as_plan_optum",
+    "description": "OPTUM as plan → Commercial",
+    "input": {"raw_plan": "OPTUM", "payer_canonical": "Optum"},
+    "expected": "Commercial"
+  },
+  {
+    "id": "payer_canonical_match",
+    "description": "Plan name matches payer canonical exactly → Commercial",
+    "input": {"raw_plan": "SUTTER HEALTH", "payer_canonical": "Sutter Health"},
+    "expected": "Commercial"
+  },
+
+  {
+    "id": "fallback_title_case",
+    "description": "Unknown plan name returned as title-case",
+    "input": {"raw_plan": "Some Custom Plan Name", "payer_canonical": "Aetna"},
+    "expected": "Some Custom Plan Name"
+  },
+  {
+    "id": "artifact_leading_contract_and_date",
+    "description": "Leading contract ID and trailing effective date are stripped before classification",
+    "input": {"raw_plan": "9470_United Healthcare Vein 20250101", "payer_canonical": "United Healthcare"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "artifact_date_suffix_without_site_code",
+    "description": "Trailing effective date is stripped from payer-as-plan labels",
+    "input": {"raw_plan": "1282_United Health Care 20250701", "payer_canonical": "United Healthcare"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "artifact_site_prefix_and_date",
+    "description": "Hospital site-code prefixes are stripped when contract/date artifacts are present",
+    "input": {"raw_plan": "2950_Spok, Nhok United Health Care 20250701", "payer_canonical": "United Healthcare"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "artifact_bracketed_contract_ids",
+    "description": "Bracketed contract IDs are stripped from bundled NY marketplace plan names",
+    "input": {"raw_plan": "Molina Essential Pq 1 And 2 [518902], Molina Essential Pa 3 And 4", "payer_canonical": "Molina Healthcare"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "artifact_trailing_dash_contract_id",
+    "description": "Trailing dash contract IDs are stripped before payer-specific plan classification",
+    "input": {"raw_plan": "Cigna Localplus - 188050", "payer_canonical": "Cigna"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "artifact_only_plan_becomes_other",
+    "description": "Plan labels containing only source-system artifacts bucket as Other",
+    "input": {"raw_plan": "9470_20250101", "payer_canonical": "United Healthcare"},
+    "expected": "Other",
+    "expected_category": "Other"
+  },
+  {
+    "id": "artifact_clean_plan_preserved",
+    "description": "Already-clean payer-specific product names classify without artifact stripping",
+    "input": {"raw_plan": "Cigna Localplus", "payer_canonical": "Cigna"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+
+  {
+    "id": "indemnity_bare",
+    "description": "Bare INDEMNITY → Commercial Indemnity",
+    "input": {"raw_plan": "INDEMNITY", "payer_canonical": "Aetna"},
+    "expected": "Commercial Indemnity",
+    "expected_category": "Commercial",
+    "expected_network": "Indemnity"
+  },
+  {
+    "id": "indemnity_commercial_prefix",
+    "description": "COMMERCIAL INDEMNITY → Commercial Indemnity",
+    "input": {"raw_plan": "COMMERCIAL INDEMNITY", "payer_canonical": "Aetna"},
+    "expected": "Commercial Indemnity",
+    "expected_category": "Commercial",
+    "expected_network": "Indemnity"
+  },
+  {
+    "id": "indemnity_payer_prefix",
+    "description": "Payer + INDEMNITY → Commercial Indemnity",
+    "input": {"raw_plan": "CIGNA INDEMNITY", "payer_canonical": "Cigna"},
+    "expected": "Commercial Indemnity",
+    "expected_category": "Commercial",
+    "expected_network": "Indemnity"
+  },
+  {
+    "id": "indemnity_mixed_case",
+    "description": "Indemnity mixed case → Commercial Indemnity",
+    "input": {"raw_plan": "Indemnity", "payer_canonical": "Aetna"},
+    "expected": "Commercial Indemnity",
+    "expected_category": "Commercial",
+    "expected_network": "Indemnity"
+  },
+  {
+    "id": "indemnity_aetna",
+    "description": "Aetna Indemnity → Commercial Indemnity",
+    "input": {"raw_plan": "AETNA INDEMNITY", "payer_canonical": "Aetna"},
+    "expected": "Commercial Indemnity",
+    "expected_category": "Commercial",
+    "expected_network": "Indemnity"
+  },
+  {
+    "id": "indemnity_commercial_hmo_wins",
+    "description": "COMMERCIAL HMO INDEMNITY → HMO wins over Indemnity",
+    "input": {"raw_plan": "COMMERCIAL HMO INDEMNITY", "payer_canonical": "Aetna"},
+    "expected": "Commercial HMO",
+    "expected_category": "Commercial",
+    "expected_network": "HMO"
+  },
+
+  {"id": "--- CHIP / MEDICAID STATE PROGRAMS ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "chip_bare",
+    "description": "CHIP → Medicaid",
+    "input": {"raw_plan": "CHIP", "payer_canonical": "UnitedHealthcare"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "chip_long",
+    "description": "CHIP Perinate → Medicaid",
+    "input": {"raw_plan": "CHIP Perinate", "payer_canonical": "Superior HealthPlan"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "schip",
+    "description": "SCHIP abbreviation → Medicaid",
+    "input": {"raw_plan": "SCHIP", "payer_canonical": "Aetna"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "child_health_plus",
+    "description": "Child Health Plus → Medicaid",
+    "input": {"raw_plan": "Child Health Plus", "payer_canonical": "Healthfirst"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "star_bare",
+    "description": "Bare Star is ambiguous - falls through to Other",
+    "input": {"raw_plan": "Star", "payer_canonical": "Superior HealthPlan"},
+    "expected": "Star",
+    "expected_category": "Other"
+  },
+  {
+    "id": "star_plus",
+    "description": "STAR+PLUS → Medicaid",
+    "input": {"raw_plan": "Star+Plus", "payer_canonical": "UnitedHealthcare"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "star_plus_with_space",
+    "description": "STAR + PLUS → Medicaid",
+    "input": {"raw_plan": "STAR + PLUS", "payer_canonical": "Amerigroup"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "starkids",
+    "description": "Starkids → Medicaid",
+    "input": {"raw_plan": "Starkids", "payer_canonical": "Superior HealthPlan"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "star_health",
+    "description": "STAR Health → Medicaid",
+    "input": {"raw_plan": "STAR Health", "payer_canonical": "Superior HealthPlan"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "masshealth",
+    "description": "MassHealth Limited → Medicaid",
+    "input": {"raw_plan": "MassHealth Limited", "payer_canonical": "Tufts Health Plan"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "masshealth_mco",
+    "description": "WellSense MassHealth MCO → Medicaid",
+    "input": {"raw_plan": "Wellsense MassHealth MCO", "payer_canonical": "WellSense"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "essential_plan",
+    "description": "All NYS Essential Plans → Medicaid",
+    "input": {"raw_plan": "All NYS Essential Plans", "payer_canonical": "Empire BCBS"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "connectorcare",
+    "description": "ConnectorCare → Medicaid",
+    "input": {"raw_plan": "MGBHP Connectorcare", "payer_canonical": "Mass General Brigham"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "family_choice",
+    "description": "Medstar Family Choice → Medicaid",
+    "input": {"raw_plan": "Medstar Family Choice MD", "payer_canonical": "MedStar"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "community_plan",
+    "description": "UHC Community Plan → Medicaid",
+    "input": {"raw_plan": "UHC Community Plan Of Maryland", "payer_canonical": "UnitedHealthcare"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "wellsense",
+    "description": "WellSense → Medicaid",
+    "input": {"raw_plan": "WellSense", "payer_canonical": "WellSense"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "healthy_kids",
+    "description": "Better Health Healthy Kids → Medicaid",
+    "input": {"raw_plan": "Better_Health_Healthy_Kids", "payer_canonical": "Cook Children's"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+  {
+    "id": "healthy_family",
+    "description": "Healthy Families → Medicaid (not Commercial)",
+    "input": {"raw_plan": "Healthy Family", "payer_canonical": "Blue Shield of California"},
+    "expected": "Medicaid",
+    "expected_category": "Medicaid"
+  },
+
+  {"id": "--- SNP / MMP / MEDICARE SUB-TYPES ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "snp_bare",
+    "description": "SNP → Medicare Advantage (Special Needs Plan)",
+    "input": {"raw_plan": "SNP", "payer_canonical": "Aetna"},
+    "expected": "Medicare Advantage",
+    "expected_category": "Medicare"
+  },
+  {
+    "id": "mmp_bare",
+    "description": "MMP → Medicare Advantage (Medicare-Medicaid Plan)",
+    "input": {"raw_plan": "MMP", "payer_canonical": "Tufts Health Plan"},
+    "expected": "Medicare Advantage",
+    "expected_category": "Medicare"
+  },
+  {
+    "id": "dual_eligible",
+    "description": "Dualeligible → Medicare Advantage",
+    "input": {"raw_plan": "Dualeligible", "payer_canonical": "CareMore"},
+    "expected": "Medicare Advantage",
+    "expected_category": "Medicare"
+  },
+  {
+    "id": "mapd",
+    "description": "MAPD → Medicare Advantage (Prescription Drug)",
+    "input": {"raw_plan": "MAPD", "payer_canonical": "Humana"},
+    "expected": "Medicare Advantage",
+    "expected_category": "Medicare"
+  },
+
+  {"id": "--- ALL PRODUCTS / UMBRELLA PLANS ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "all_products",
+    "description": "All Products → Commercial",
+    "input": {"raw_plan": "All Products", "payer_canonical": "Aetna"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "all_products_va",
+    "description": "All Products VA → Commercial",
+    "input": {"raw_plan": "All Products VA", "payer_canonical": "Anthem"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "ubh_all_products",
+    "description": "UBH All Products → Commercial",
+    "input": {"raw_plan": "UBH All Products", "payer_canonical": "United Behavioral Health"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+
+  {"id": "--- SELF-FUNDED / ASO / GROUP SIZE ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "self_funded",
+    "description": "Self Funded → Commercial",
+    "input": {"raw_plan": "Self Funded", "payer_canonical": "Cigna"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "aso",
+    "description": "ASO → Commercial",
+    "input": {"raw_plan": "ASO", "payer_canonical": "Cigna"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "fully_insured",
+    "description": "Fully Insured → Commercial",
+    "input": {"raw_plan": "Fully Insured", "payer_canonical": "Aetna"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "ifp",
+    "description": "IFP → Commercial (Individual/Family Plan)",
+    "input": {"raw_plan": "IFP", "payer_canonical": "Anthem"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "smallgroup",
+    "description": "Smallgroup → Commercial",
+    "input": {"raw_plan": "Smallgroup", "payer_canonical": "BCBS Texas"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+  {
+    "id": "large_group",
+    "description": "BSW Premier - Large Group → Commercial",
+    "input": {"raw_plan": "BSW Premier - Large Group/National/Individual", "payer_canonical": "BCBS Texas"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  },
+
+  {"id": "--- GOVERNMENT / VA / TRICARE ---", "description": "separator", "input": {"raw_plan": null, "payer_canonical": ""}, "expected": "Other"},
+
+  {
+    "id": "geha",
+    "description": "GEHA → Government",
+    "input": {"raw_plan": "GEHA", "payer_canonical": "GEHA"},
+    "expected": "Government",
+    "expected_category": "Government"
+  },
+  {
+    "id": "fep",
+    "description": "FEP → Government (Federal Employee Program)",
+    "input": {"raw_plan": "FEP", "payer_canonical": "BCBS"},
+    "expected": "Government",
+    "expected_category": "Government"
+  },
+  {
+    "id": "champva",
+    "description": "CHAMPVA → Government",
+    "input": {"raw_plan": "CHAMPVA", "payer_canonical": "VA"},
+    "expected": "Government",
+    "expected_category": "Government"
+  },
+  {
+    "id": "va_community_care",
+    "description": "Optum VA Community Care → TRICARE",
+    "input": {"raw_plan": "Optum VA Community Care", "payer_canonical": "Optum"},
+    "expected": "TRICARE",
+    "expected_category": "TRICARE"
+  },
+  {
+    "id": "mcare_abbrev_word",
+    "description": "MCARE in plan suffix maps to Medicare Advantage",
+    "input": {"raw_plan": "UHC MCARE", "payer_canonical": "United Healthcare"},
+    "expected": "Medicare Advantage",
+    "expected_category": "Medicare"
+  },
+  {
+    "id": "contracted_commercial_plan",
+    "description": "Commercial contracted plan labels classify as Commercial",
+    "input": {"raw_plan": "Commercial Contracted", "payer_canonical": "Aetna"},
+    "expected": "Commercial",
+    "expected_category": "Commercial"
+  }
+]

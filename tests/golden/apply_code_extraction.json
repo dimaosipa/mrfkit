@@ -1,0 +1,200 @@
+[
+  {
+    "id": "no_config",
+    "description": "No config provided - return unchanged",
+    "input": {"code": "RRUCLA-123-456-99213-789", "code_type": "CPT", "config": null},
+    "expected": {"code": "RRUCLA-123-456-99213-789", "code_type": "CPT"}
+  },
+  {
+    "id": "empty_config",
+    "description": "Empty dict config - return unchanged",
+    "input": {"code": "RRUCLA-123-456-99213-789", "code_type": "CPT", "config": {}},
+    "expected": {"code": "RRUCLA-123-456-99213-789", "code_type": "CPT"}
+  },
+  {
+    "id": "config_without_extraction_key",
+    "description": "Config dict without code_extraction key - return unchanged",
+    "input": {"code": "RRUCLA-123-456-99213-789", "code_type": "CPT", "config": {"other": "stuff"}},
+    "expected": {"code": "RRUCLA-123-456-99213-789", "code_type": "CPT"}
+  },
+  {
+    "id": "no_pattern_in_extraction",
+    "description": "code_extraction without pattern - return unchanged",
+    "input": {
+      "code": "RRUCLA-123-456-99213-789",
+      "code_type": "CPT",
+      "config": {"code_extraction": {"separator": "-", "code_position": 3}}
+    },
+    "expected": {"code": "RRUCLA-123-456-99213-789", "code_type": "CPT"}
+  },
+  {
+    "id": "none_code",
+    "description": "None code - return unchanged",
+    "input": {
+      "code": null,
+      "code_type": "CPT",
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": null, "code_type": "CPT"}
+  },
+  {
+    "id": "empty_code",
+    "description": "Empty string code - return unchanged (falsy)",
+    "input": {
+      "code": "",
+      "code_type": "CPT",
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "", "code_type": "CPT"}
+  },
+  {
+    "id": "non_matching_pattern",
+    "description": "Code that doesn't match pattern - return unchanged",
+    "input": {
+      "code": "99213",
+      "code_type": "CPT",
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "99213", "code_type": "CPT"}
+  },
+  {
+    "id": "basic_extraction",
+    "description": "Standard UCLA composite code - extract CPT from position 3",
+    "input": {
+      "code": "RRUCLA-7616710100-1000-67101-0761-8580-Y",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "67101", "code_type": null}
+  },
+  {
+    "id": "extraction_with_whitespace",
+    "description": "Code with leading/trailing whitespace - stripped before matching",
+    "input": {
+      "code": "  RRUCLA-7616710100-1000-67101-0761-8580-Y  ",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "67101", "code_type": null}
+  },
+  {
+    "id": "santa_monica_prefix",
+    "description": "RRUCLASM prefix matches ^RRUCLA pattern",
+    "input": {
+      "code": "RRUCLASM-1234567890-2000-99213-0100-5000-N",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "99213", "code_type": null}
+  },
+  {
+    "id": "neuropsych_prefix",
+    "description": "RRUCLARN prefix matches ^RRUCLA pattern",
+    "input": {
+      "code": "RRUCLARN-9876543210-3000-70551-0200-7500-Y",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "70551", "code_type": null}
+  },
+  {
+    "id": "extra_modifier_segments",
+    "description": "Additional segments after position 6 don't affect extraction",
+    "input": {
+      "code": "RRUCLA-7616710100-1000-67101-0761-8580-Y-26---",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "67101", "code_type": null}
+  },
+  {
+    "id": "fallback_empty_code_position",
+    "description": "Position 3 is empty - fallback to CDM at position 1",
+    "input": {
+      "code": "RRUCLA-7616710100-1000--0761-8580-Y",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "7616710100", "code_type": "CDM"}
+  },
+  {
+    "id": "fallback_short_code",
+    "description": "Fewer segments than code_position - fallback to position 1",
+    "input": {
+      "code": "RRUCLA-7616710100-1000",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "7616710100", "code_type": "CDM"}
+  },
+  {
+    "id": "all_segments_empty",
+    "description": "All relevant segments empty - return original code unchanged",
+    "input": {
+      "code": "X--",
+      "code_type": "UNK",
+      "config": {"code_extraction": {"pattern": "^X", "separator": "-", "code_position": 1, "fallback_position": 2}}
+    },
+    "expected": {"code": "X--", "code_type": "UNK"}
+  },
+  {
+    "id": "custom_separator",
+    "description": "Non-dash separator (pipe) works correctly",
+    "input": {
+      "code": "PREFIX|CDM123|99213|other",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^PREFIX", "separator": "|", "code_position": 2, "fallback_position": 1}}
+    },
+    "expected": {"code": "99213", "code_type": null}
+  },
+  {
+    "id": "full_regex_pattern_match",
+    "description": "Pattern is a full regex (alternation group) - matches",
+    "input": {
+      "code": "RRUCLASM-1-2-ABCDE-4",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^(RRUCLA|RRUCLASM|RRUCLARN)", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "ABCDE", "code_type": null}
+  },
+  {
+    "id": "full_regex_pattern_no_match",
+    "description": "Pattern is a full regex - doesn't match, return unchanged",
+    "input": {
+      "code": "OTHER-1-2-ABCDE-4",
+      "code_type": "CPT",
+      "config": {"code_extraction": {"pattern": "^(RRUCLA|RRUCLASM|RRUCLARN)", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "OTHER-1-2-ABCDE-4", "code_type": "CPT"}
+  },
+  {
+    "id": "code_type_preserved_no_match",
+    "description": "Original code_type preserved when pattern doesn't match",
+    "input": {
+      "code": "12345",
+      "code_type": "HCPCS",
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "12345", "code_type": "HCPCS"}
+  },
+  {
+    "id": "code_type_cleared_on_extraction",
+    "description": "code_type set to None on successful extraction (for normalize_code to classify)",
+    "input": {
+      "code": "RRUCLA-1-2-99213-4-5-Y",
+      "code_type": "SOME_TYPE",
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "99213", "code_type": null}
+  },
+  {
+    "id": "code_type_cdm_on_fallback",
+    "description": "code_type set to CDM on fallback extraction",
+    "input": {
+      "code": "RRUCLA-CDM999-2--4-5-Y",
+      "code_type": "SOME_TYPE",
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {"code": "CDM999", "code_type": "CDM"}
+  }
+]

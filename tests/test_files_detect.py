@@ -133,7 +133,7 @@ class TestDetectFileFormatByExtension:
         with zipfile.ZipFile(p, "w") as zf:
             zf.writestr("inner.zip", inner_buf.getvalue())
         # inner.zip has a recognised .zip extension but detect_format_from_zip
-        # doesn't recurse — it checks extension only; however for an
+        # doesn't recurse - it checks extension only; however for an
         # unrecognised extension like .dat wrapping a ZIP, it should reject:
         p2 = tmp_path / "data2.zip"
         with zipfile.ZipFile(p2, "w") as zf:
@@ -187,7 +187,7 @@ class TestDetectFileFormatMacOSZip:
         assert detect_file_format(p) == ("csv", "zip")
 
     def test_zip_two_real_files_still_rejected(self, tmp_path):
-        """Two genuine data members remain an error — we must not guess."""
+        """Two genuine data members remain an error - we must not guess."""
         p = tmp_path / "data.zip"
         with zipfile.ZipFile(p, "w") as zf:
             zf.writestr("one.csv", "a,b\n1,2\n")
@@ -204,7 +204,7 @@ class TestDetectFileFormatMacOSZip:
             detect_file_format(p)
 
     def test_read_path_selects_real_member_when_sidecar_first(self, tmp_path):
-        """The read helper must pick the genuine member regardless of order —
+        """The read helper must pick the genuine member regardless of order -
         a sidecar listed first must not be opened as the data file."""
         p = tmp_path / "data.zip"
         with zipfile.ZipFile(p, "w") as zf:
@@ -259,13 +259,13 @@ class TestDetectFileFormatMismatch:
         assert detect_file_format(p) == ("csv", None)
 
     def test_empty_json_file_trusts_extension(self, tmp_path):
-        """An empty .json file — can't sniff, trust the extension."""
+        """An empty .json file - can't sniff, trust the extension."""
         p = tmp_path / "charges.json"
         p.write_bytes(b"")
         assert detect_file_format(p) == ("json", None)
 
     def test_empty_csv_file_trusts_extension(self, tmp_path):
-        """An empty .csv file — can't sniff, trust the extension."""
+        """An empty .csv file - can't sniff, trust the extension."""
         p = tmp_path / "charges.csv"
         p.write_bytes(b"")
         assert detect_file_format(p) == ("csv", None)
@@ -321,7 +321,7 @@ class TestDetectFileFormatByContent:
         assert detect_file_format(p) == ("json", "zip")
 
     def test_zip_txt_inner_no_extension(self):
-        """ZIP (no outer extension) with .txt inner file — sniff content."""
+        """ZIP (no outer extension) with .txt inner file - sniff content."""
         p = _write_zip("hospital_charges.txt", b"code,desc,price\n1,2,3\n", suffix="")
         assert detect_file_format(p) == ("csv", "zip")
 
@@ -333,7 +333,7 @@ class TestDetectFileFormatByContent:
     def test_mrf_extension_falls_back(self):
         """Mimics the Craneware URL that ends in /mrf with no extension."""
         p = _write_tmp(b"code,description,price\n1,2,3\n", suffix=".mrf")
-        # .mrf is not a recognized extension — should sniff as CSV
+        # .mrf is not a recognized extension - should sniff as CSV
         assert detect_file_format(p) == ("csv", None)
 
 
@@ -519,13 +519,13 @@ class TestDetectFormatUTF16:
         assert _detect_format_from_content(p) == ("json", None)
 
     def test_utf16_le_no_bom_json_detected(self):
-        """UTF-16 LE JSON without BOM — heuristic detection."""
+        """UTF-16 LE JSON without BOM - heuristic detection."""
         content = '{"hospital_name": "Test"}'.encode('utf-16-le')
         p = _write_tmp(content)
         assert _detect_format_from_content(p) == ("json", None)
 
     def test_utf16_be_no_bom_json_detected(self):
-        """UTF-16 BE JSON without BOM — heuristic detection."""
+        """UTF-16 BE JSON without BOM - heuristic detection."""
         content = '{"hospital_name": "Test"}'.encode('utf-16-be')
         p = _write_tmp(content)
         assert _detect_format_from_content(p) == ("json", None)

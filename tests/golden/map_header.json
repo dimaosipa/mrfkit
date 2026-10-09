@@ -1,0 +1,326 @@
+[
+  {
+    "id": "exact_match_billing_code",
+    "description": "Exact synonym match: billing_code → code",
+    "input": {"source_header": "billing_code"},
+    "expected": {"normalized": "billing_code", "mapped_field": "code"}
+  },
+  {
+    "id": "case_insensitive_billing_code",
+    "description": "Case-insensitive synonym match: Billing Code → code",
+    "input": {"source_header": "Billing Code"},
+    "expected": {"normalized": "billing_code", "mapped_field": "code"}
+  },
+  {
+    "id": "gross_charge",
+    "description": "GROSS CHARGE → gross_charge",
+    "input": {"source_header": "GROSS CHARGE"},
+    "expected": {"normalized": "gross_charge", "mapped_field": "gross_charge"}
+  },
+  {
+    "id": "pipe_standard_charge_gross",
+    "description": "Pipe pattern: standard_charge|gross → gross_charge (tries last part alone)",
+    "input": {"source_header": "standard_charge|gross"},
+    "expected": {"normalized": "standard_chargegross", "mapped_field": "gross_charge"}
+  },
+  {
+    "id": "pipe_standard_charge_discounted_cash",
+    "description": "Pipe pattern: standard_charge|discounted_cash → discounted_cash_price",
+    "input": {"source_header": "standard_charge|discounted_cash"},
+    "expected": {"normalized": "standard_chargediscounted_cash", "mapped_field": "discounted_cash_price"}
+  },
+  {
+    "id": "pipe_standard_charge_negotiated_dollar",
+    "description": "Pipe pattern: standard_charge|negotiated_dollar → negotiated_rate",
+    "input": {"source_header": "standard_charge|negotiated_dollar"},
+    "expected": {"normalized": "standard_chargenegotiated_dollar", "mapped_field": "negotiated_rate"}
+  },
+  {
+    "id": "pipe_standard_charge_min",
+    "description": "Pipe pattern: standard_charge|min → min_negotiated_rate (last part 'min' in SYNONYM_MAP)",
+    "input": {"source_header": "standard_charge|min"},
+    "expected": {"normalized": "standard_chargemin", "mapped_field": "min_negotiated_rate"}
+  },
+  {
+    "id": "pipe_code_1",
+    "description": "Pipe pattern: code|1 → code (base pattern)",
+    "input": {"source_header": "code|1"},
+    "expected": {"normalized": "code1", "mapped_field": "code"}
+  },
+  {
+    "id": "pipe_code_1_type",
+    "description": "Pipe pattern: code|1|type → code_type (Pattern 1 combines first+last)",
+    "input": {"source_header": "code|1|type"},
+    "expected": {"normalized": "code1type", "mapped_field": "code_type"}
+  },
+  {
+    "id": "no_match_unknown",
+    "description": "Unknown header returns None mapped_field",
+    "input": {"source_header": "unknown_header"},
+    "expected": {"normalized": "unknown_header", "mapped_field": null}
+  },
+  {
+    "id": "payer_name_exact",
+    "description": "payer_name exact match → payer_name",
+    "input": {"source_header": "payer_name"},
+    "expected": {"normalized": "payer_name", "mapped_field": "payer_name"}
+  },
+  {
+    "id": "insurance_name",
+    "description": "insurance_name synonym → payer_name",
+    "input": {"source_header": "insurance_name"},
+    "expected": {"normalized": "insurance_name", "mapped_field": "payer_name"}
+  },
+  {
+    "id": "plan",
+    "description": "plan synonym → plan_name",
+    "input": {"source_header": "plan"},
+    "expected": {"normalized": "plan", "mapped_field": "plan_name"}
+  },
+  {
+    "id": "modifier_code",
+    "description": "modifier_code synonym → modifiers",
+    "input": {"source_header": "modifier_code"},
+    "expected": {"normalized": "modifier_code", "mapped_field": "modifiers"}
+  },
+  {
+    "id": "drug_unit",
+    "description": "drug_unit synonym → drug_unit_of_measurement",
+    "input": {"source_header": "drug_unit"},
+    "expected": {"normalized": "drug_unit", "mapped_field": "drug_unit_of_measurement"}
+  },
+  {
+    "id": "estimated_amount",
+    "description": "estimated_amount exact match",
+    "input": {"source_header": "estimated_amount"},
+    "expected": {"normalized": "estimated_amount", "mapped_field": "estimated_amount"}
+  },
+  {
+    "id": "methodology",
+    "description": "methodology exact match",
+    "input": {"source_header": "methodology"},
+    "expected": {"normalized": "methodology", "mapped_field": "methodology"}
+  },
+  {
+    "id": "count",
+    "description": "count → claim_count",
+    "input": {"source_header": "count"},
+    "expected": {"normalized": "count", "mapped_field": "claim_count"}
+  },
+  {
+    "id": "10th_percentile",
+    "description": "10th_percentile → pct_10",
+    "input": {"source_header": "10th_percentile"},
+    "expected": {"normalized": "10th_percentile", "mapped_field": "pct_10"}
+  },
+  {
+    "id": "cms_certification_number",
+    "description": "cms_certification_number exact match",
+    "input": {"source_header": "cms_certification_number"},
+    "expected": {"normalized": "cms_certification_number", "mapped_field": "cms_certification_number"}
+  },
+  {
+    "id": "medicare_provider_number",
+    "description": "medicare_provider_number → cms_certification_number",
+    "input": {"source_header": "medicare_provider_number"},
+    "expected": {"normalized": "medicare_provider_number", "mapped_field": "cms_certification_number"}
+  },
+  {
+    "id": "additional_generic_notes_with_lpp",
+    "description": "Long synonym maps correctly → additional_generic_notes",
+    "input": {"source_header": "additional_generic_notes_with_lpp"},
+    "expected": {"normalized": "additional_generic_notes_with_lpp", "mapped_field": "additional_generic_notes"}
+  },
+  {
+    "id": "ip_price",
+    "description": "Partners Healthcare ip_price → negotiated_rate",
+    "input": {"source_header": "ip_price"},
+    "expected": {"normalized": "ip_price", "mapped_field": "negotiated_rate"}
+  },
+  {
+    "id": "min_ip_reimb",
+    "description": "Partners Healthcare min_ip_reimb → min_negotiated_rate",
+    "input": {"source_header": "min_ip_reimb"},
+    "expected": {"normalized": "min_ip_reimb", "mapped_field": "min_negotiated_rate"}
+  },
+  {
+    "id": "max_ip_reimb",
+    "description": "Partners Healthcare max_ip_reimb → max_negotiated_rate",
+    "input": {"source_header": "max_ip_reimb"},
+    "expected": {"normalized": "max_ip_reimb", "mapped_field": "max_negotiated_rate"}
+  },
+  {
+    "id": "ip_expected_reimbursement",
+    "description": "Partners Healthcare ip_expected_reimbursement → estimated_amount",
+    "input": {"source_header": "ip_expected_reimbursement"},
+    "expected": {"normalized": "ip_expected_reimbursement", "mapped_field": "estimated_amount"}
+  },
+  {
+    "id": "op_price_unmapped",
+    "description": "op_price is not mapped (fallback handled at row level)",
+    "input": {"source_header": "op_price"},
+    "expected": {"normalized": "op_price", "mapped_field": null}
+  },
+  {
+    "id": "facility_name",
+    "description": "facility_name → hospital_name",
+    "input": {"source_header": "facility_name"},
+    "expected": {"normalized": "facility_name", "mapped_field": "hospital_name"}
+  },
+  {
+    "id": "facility",
+    "description": "facility → hospital_name (South Texas format)",
+    "input": {"source_header": "Facility"},
+    "expected": {"normalized": "facility", "mapped_field": "hospital_name"}
+  },
+  {
+    "id": "hcpcscpt_code",
+    "description": "HCPCS/CPT Code → code (Medical City format)",
+    "input": {"source_header": "HCPCS/CPT Code"},
+    "expected": {"normalized": "hcpcscpt_code", "mapped_field": "code"}
+  },
+  {
+    "id": "discounted_cash_price_gross_charges",
+    "description": "Discounted Cash Price (Gross Charges) → discounted_cash_price (Medical City format)",
+    "input": {"source_header": "Discounted Cash Price (Gross Charges)"},
+    "expected": {"normalized": "discounted_cash_price_gross_charges", "mapped_field": "discounted_cash_price"}
+  },
+  {
+    "id": "footnote",
+    "description": "footnote → footnote",
+    "input": {"source_header": "footnote"},
+    "expected": {"normalized": "footnote", "mapped_field": "footnote"}
+  },
+  {
+    "id": "pricing_footnote",
+    "description": "pricing_footnote → footnote",
+    "input": {"source_header": "pricing_footnote"},
+    "expected": {"normalized": "pricing_footnote", "mapped_field": "footnote"}
+  },
+  {
+    "id": "rate_footnote",
+    "description": "rate_footnote → footnote",
+    "input": {"source_header": "rate_footnote"},
+    "expected": {"normalized": "rate_footnote", "mapped_field": "footnote"}
+  },
+  {
+    "id": "gross_price",
+    "description": "Gross Price → gross_charge (Cornerstone Regional Hospital format)",
+    "input": {"source_header": "Gross Price"},
+    "expected": {"normalized": "gross_price", "mapped_field": "gross_charge"}
+  },
+  {
+    "id": "hcpcs_bare",
+    "description": "HCPCS → code (Paris / Cornerstone Regional format)",
+    "input": {"source_header": "HCPCS"},
+    "expected": {"normalized": "hcpcs", "mapped_field": "code"}
+  },
+  {
+    "id": "procedurecode_camelcase",
+    "description": "ProcedureCode → code (Hawaii hospitals CamelCase format)",
+    "input": {"source_header": "ProcedureCode"},
+    "expected": {"normalized": "procedurecode", "mapped_field": "code"}
+  },
+  {
+    "id": "minimumnegotiatedcharge",
+    "description": "MinimumNegotiatedCharge → min_negotiated_rate (Hawaii hospitals CamelCase format)",
+    "input": {"source_header": "MinimumNegotiatedCharge"},
+    "expected": {"normalized": "minimumnegotiatedcharge", "mapped_field": "min_negotiated_rate"}
+  },
+  {
+    "id": "maximumnegotiatedcharge",
+    "description": "MaximumNegotiatedCharge → max_negotiated_rate (Hawaii hospitals CamelCase format)",
+    "input": {"source_header": "MaximumNegotiatedCharge"},
+    "expected": {"normalized": "maximumnegotiatedcharge", "mapped_field": "max_negotiated_rate"}
+  },
+  {
+    "id": "insurance_carrier",
+    "description": "Insurance_Carrier → payer_name (Ascension hospitals)",
+    "input": {"source_header": "Insurance_Carrier"},
+    "expected": {"normalized": "insurance_carrier", "mapped_field": "payer_name"}
+  },
+  {
+    "id": "customer_description",
+    "description": "Customer_Description → description (Ascension hospitals)",
+    "input": {"source_header": "Customer_Description"},
+    "expected": {"normalized": "customer_description", "mapped_field": "description"}
+  },
+  {
+    "id": "code_descriptions",
+    "description": "Code_Descriptions → description (Ascension hospitals)",
+    "input": {"source_header": "Code_Descriptions"},
+    "expected": {"normalized": "code_descriptions", "mapped_field": "description"}
+  },
+  {
+    "id": "code_value",
+    "description": "Code_Value → code (Ascension hospitals)",
+    "input": {"source_header": "Code_Value"},
+    "expected": {"normalized": "code_value", "mapped_field": "code"}
+  },
+  {
+    "id": "charge_description",
+    "description": "Charge Description → description (William Bee Ririe Hospital)",
+    "input": {"source_header": "Charge Description"},
+    "expected": {"normalized": "charge_description", "mapped_field": "description"}
+  },
+  {
+    "id": "additional_payer_notes",
+    "description": "additional_payer_notes → additional_notes (University Hospitals)",
+    "input": {"source_header": "additional_payer_notes"},
+    "expected": {"normalized": "additional_payer_notes", "mapped_field": "additional_notes"}
+  },
+  {
+    "id": "median_allowed_amount",
+    "description": "median_allowed_amount → median_amount (Valley Medical Center)",
+    "input": {"source_header": "median_allowed_amount"},
+    "expected": {"normalized": "median_allowed_amount", "mapped_field": "median_amount"}
+  },
+  {
+    "id": "tenth_percentile_allowed_amount",
+    "description": "tenth_percentile_allowed_amount → pct_10 (Valley Medical Center)",
+    "input": {"source_header": "tenth_percentile_allowed_amount"},
+    "expected": {"normalized": "tenth_percentile_allowed_amount", "mapped_field": "pct_10"}
+  },
+  {
+    "id": "ninetieth_percentile_allowed_amount",
+    "description": "ninetieth_percentile_allowed_amount → pct_90 (Valley Medical Center)",
+    "input": {"source_header": "ninetieth_percentile_allowed_amount"},
+    "expected": {"normalized": "ninetieth_percentile_allowed_amount", "mapped_field": "pct_90"}
+  },
+  {
+    "id": "allowed_amount_count",
+    "description": "allowed_amount_count → claim_count (Valley Medical Center)",
+    "input": {"source_header": "allowed_amount_count"},
+    "expected": {"normalized": "allowed_amount_count", "mapped_field": "claim_count"}
+  },
+  {
+    "id": "count_of_compared_rates",
+    "description": "count_of_compared_rates → claim_count (Cleveland Clinic, CMS 3.0)",
+    "input": {"source_header": "count_of_compared_rates"},
+    "expected": {"normalized": "count_of_compared_rates", "mapped_field": "claim_count"}
+  },
+  {
+    "id": "quoted_standard_charge_gross",
+    "description": "Quote-wrapped \"standard_charge|gross\" maps to gross_charge (BERTRAND CHAFFEE)",
+    "input": {"source_header": "\"standard_charge|gross\""},
+    "expected": {"normalized": "standard_chargegross", "mapped_field": "gross_charge"}
+  },
+  {
+    "id": "quoted_standard_charge_min",
+    "description": "Quote-wrapped \"standard_charge|min\" maps to min_negotiated_rate",
+    "input": {"source_header": "\"standard_charge|min\""},
+    "expected": {"normalized": "standard_chargemin", "mapped_field": "min_negotiated_rate"}
+  },
+  {
+    "id": "quoted_code_1_type",
+    "description": "Quote-wrapped \"code|1|type\" maps to code_type",
+    "input": {"source_header": "\"code|1|type\""},
+    "expected": {"normalized": "code1type", "mapped_field": "code_type"}
+  },
+  {
+    "id": "quoted_code_1",
+    "description": "Quote-wrapped \"code|1\" maps to code",
+    "input": {"source_header": "\"code|1\""},
+    "expected": {"normalized": "code1", "mapped_field": "code"}
+  }
+]

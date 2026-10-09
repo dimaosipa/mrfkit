@@ -1,0 +1,98 @@
+[
+  {
+    "id": "normalize_billing_code",
+    "description": "Common synonym 'billing_code' normalizes to 'billing_code'",
+    "input": {"header": "Billing Code"},
+    "expected": {"normalized": "billing_code"}
+  },
+  {
+    "id": "normalize_already_clean",
+    "description": "Already normalized header passes through",
+    "input": {"header": "billing_code"},
+    "expected": {"normalized": "billing_code"}
+  },
+  {
+    "id": "normalize_uppercase",
+    "description": "UPPERCASE lowercased and spaces to underscores",
+    "input": {"header": "GROSS CHARGE"},
+    "expected": {"normalized": "gross_charge"}
+  },
+  {
+    "id": "normalize_parentheses_stripped",
+    "description": "Parentheses removed as non-word punctuation",
+    "input": {"header": "standard charge (negotiated)"},
+    "expected": {"normalized": "standard_charge_negotiated"}
+  },
+  {
+    "id": "normalize_dash_to_underscore",
+    "description": "Dashes converted to underscores",
+    "input": {"header": "code-type"},
+    "expected": {"normalized": "code_type"}
+  },
+  {
+    "id": "normalize_whitespace_trimmed",
+    "description": "Leading/trailing whitespace trimmed",
+    "input": {"header": "  CPT  "},
+    "expected": {"normalized": "cpt"}
+  },
+  {
+    "id": "normalize_double_dash",
+    "description": "Multiple dashes collapsed to single underscore",
+    "input": {"header": "payer--name"},
+    "expected": {"normalized": "payer_name"}
+  },
+  {
+    "id": "normalize_exclamation_stripped",
+    "description": "Punctuation (!!!) removed",
+    "input": {"header": "Payer_Name!!!"},
+    "expected": {"normalized": "payer_name"}
+  },
+  {
+    "id": "normalize_pipe_removed",
+    "description": "Pipe character (|) is not \\w, so removed without underscore",
+    "input": {"header": "standard_charge|gross"},
+    "expected": {"normalized": "standard_chargegross"}
+  },
+  {
+    "id": "normalize_empty_string",
+    "description": "Empty string returns empty string",
+    "input": {"header": ""},
+    "expected": {"normalized": ""}
+  },
+  {
+    "id": "normalize_long_synonym",
+    "description": "Long multi-word header normalizes correctly",
+    "input": {"header": "additional_generic_notes_with_lpp"},
+    "expected": {"normalized": "additional_generic_notes_with_lpp"}
+  },
+  {
+    "id": "normalize_pipe_spaced",
+    "description": "Pipe with spaces: spaces → underscores, pipe removed",
+    "input": {"header": "Code | 1 | Type"},
+    "expected": {"normalized": "code_1_type"}
+  },
+  {
+    "id": "normalize_hash_stripped",
+    "description": "Hash symbol (#) removed as non-word punctuation",
+    "input": {"header": "Hospital EIN #"},
+    "expected": {"normalized": "hospital_ein"}
+  },
+  {
+    "id": "normalize_strip_double_quotes",
+    "description": "Surrounding double quotes stripped (BERTRAND CHAFFEE-style headers)",
+    "input": {"header": "\"standard_charge|gross\""},
+    "expected": {"normalized": "standard_chargegross"}
+  },
+  {
+    "id": "normalize_strip_single_quotes",
+    "description": "Surrounding single quotes stripped",
+    "input": {"header": "'payer_name'"},
+    "expected": {"normalized": "payer_name"}
+  },
+  {
+    "id": "normalize_strip_smart_quotes",
+    "description": "Surrounding smart double quotes (\u201c\u201d) stripped",
+    "input": {"header": "\u201cgross_charge\u201d"},
+    "expected": {"normalized": "gross_charge"}
+  }
+]

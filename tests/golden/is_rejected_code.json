@@ -1,0 +1,173 @@
+[
+  {
+    "id": "both_none_ok",
+    "description": "None code and None code_type → not rejected (callers skip empty rows separately)",
+    "input": {"code": null, "code_type": null},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "valid_cpt_ok",
+    "description": "A normal CPT code is not rejected",
+    "input": {"code": "99213", "code_type": "CPT"},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "valid_hcpcs_ok",
+    "description": "A normal HCPCS code is not rejected",
+    "input": {"code": "J0591", "code_type": "HCPCS"},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "valid_ms_drg_ok",
+    "description": "A normal 3-digit MS-DRG is not rejected",
+    "input": {"code": "470", "code_type": "MS-DRG"},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "valid_apr_drg_ok",
+    "description": "A normal APR-DRG NNN-S code is not rejected",
+    "input": {"code": "139-1", "code_type": "APR-DRG"},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "local_placeholder_ok",
+    "description": "LOCAL code is allowed through (left for human review)",
+    "input": {"code": "TEST", "code_type": "LOCAL"},
+    "expected": {"reason": null}
+  },
+
+  {"id": "--- NUMERIC code_type rejection ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"reason": null}},
+
+  {
+    "id": "numeric_code_type_1",
+    "description": "code_type='1' is almost always a column mis-parse → reject",
+    "input": {"code": "99213", "code_type": "1"},
+    "expected": {"reason": "numeric_code_type"}
+  },
+  {
+    "id": "numeric_code_type_12",
+    "description": "code_type='12' also a column mis-parse → reject",
+    "input": {"code": "99213", "code_type": "12"},
+    "expected": {"reason": "numeric_code_type"}
+  },
+  {
+    "id": "numeric_code_type_with_whitespace",
+    "description": "code_type=' 1 ' (whitespace-padded) still rejected",
+    "input": {"code": "99213", "code_type": " 1 "},
+    "expected": {"reason": "numeric_code_type"}
+  },
+
+  {"id": "--- MS-DRG decimal rejection ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"reason": null}},
+
+  {
+    "id": "ms_drg_decimal_0_1234",
+    "description": "MS-DRG '0.1234' → reject (DRGs are 3-digit integers)",
+    "input": {"code": "0.1234", "code_type": "MS-DRG"},
+    "expected": {"reason": "ms_drg_decimal"}
+  },
+  {
+    "id": "ms_drg_decimal_470_5",
+    "description": "MS-DRG '470.5' → reject",
+    "input": {"code": "470.5", "code_type": "MS-DRG"},
+    "expected": {"reason": "ms_drg_decimal"}
+  },
+  {
+    "id": "ms_drg_decimal_lowercase_type",
+    "description": "MS-DRG check is case-insensitive on code_type",
+    "input": {"code": "0.9999", "code_type": "ms-drg"},
+    "expected": {"reason": "ms_drg_decimal"}
+  },
+  {
+    "id": "ms_drg_integer_not_rejected",
+    "description": "MS-DRG '470' (canonical) is not rejected",
+    "input": {"code": "470", "code_type": "MS-DRG"},
+    "expected": {"reason": null}
+  },
+
+  {"id": "--- edge cases ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"reason": null}},
+
+  {
+    "id": "empty_string_code_type_ok",
+    "description": "code_type='' is not numeric, not rejected",
+    "input": {"code": "99213", "code_type": ""},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "cpt_decimal_not_rejected",
+    "description": "CPT with decimal is weird but not what this rule targets",
+    "input": {"code": "99213.5", "code_type": "CPT"},
+    "expected": {"reason": null}
+  },
+
+  {"id": "--- malformed code_type rejection ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"reason": null}},
+
+  {
+    "id": "malformed_code_type_decimal",
+    "description": "code_type='32.09' (decimal number) → reject as CSV column-shift artefact",
+    "input": {"code": "x", "code_type": "32.09"},
+    "expected": {"reason": "malformed_code_type"}
+  },
+  {
+    "id": "malformed_code_type_alphanumeric_long",
+    "description": "code_type='27000001' is 8-digit numeric, rejected by numeric rule first",
+    "input": {"code": "x", "code_type": "27000001"},
+    "expected": {"reason": "numeric_code_type"}
+  },
+  {
+    "id": "malformed_code_type_sentence",
+    "description": "code_type containing whitespace/prose → reject",
+    "input": {"code": "x", "code_type": "as remittances do not itemize"},
+    "expected": {"reason": "malformed_code_type"}
+  },
+  {
+    "id": "malformed_code_type_lowercase",
+    "description": "Lowercase-only code_type is accepted when it uppercases to a valid token",
+    "input": {"code": "x", "code_type": "facility"},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "malformed_code_type_too_long",
+    "description": "code_type longer than 16 chars is certainly a leaked description",
+    "input": {"code": "x", "code_type": "PERCENT_OF_BILLED_CHARGES"},
+    "expected": {"reason": "malformed_code_type"}
+  },
+  {
+    "id": "malformed_code_type_trailing_quote",
+    "description": "code_type with embedded quote → reject",
+    "input": {"code": "x", "code_type": "CORDIS\""},
+    "expected": {"reason": "malformed_code_type"}
+  },
+  {
+    "id": "malformed_code_type_hcpcs_lookalike_c1887",
+    "description": "code='CDM', code_type='C1887' → C1887 is a HCPCS code, columns shifted, reject",
+    "input": {"code": "CDM", "code_type": "C1887"},
+    "expected": {"reason": "malformed_code_type"}
+  },
+  {
+    "id": "malformed_code_type_hcpcs_lookalike_j0591",
+    "description": "code_type='J0591' is a HCPCS code, not a type → reject",
+    "input": {"code": "CDM", "code_type": "J0591"},
+    "expected": {"reason": "malformed_code_type"}
+  },
+
+  {"id": "--- unknown but structurally valid code_types pass ---", "description": "separator", "input": {"code": "X", "code_type": "X"}, "expected": {"reason": null}},
+
+  {
+    "id": "unknown_code_type_xyz_drg",
+    "description": "Unknown 'XYZ-DRG' is structurally valid → accepted",
+    "input": {"code": "x", "code_type": "XYZ-DRG"},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "unknown_code_type_cpt_hcpcs",
+    "description": "CPT/HCPCS (compound, 9 chars) → accepted",
+    "input": {"code": "99213", "code_type": "CPT/HCPCS"},
+    "expected": {"reason": null}
+  },
+  {
+    "id": "unknown_code_type_tris_drg",
+    "description": "TRIS-DRG → accepted",
+    "input": {"code": "470", "code_type": "TRIS-DRG"},
+    "expected": {"reason": null}
+  }
+]

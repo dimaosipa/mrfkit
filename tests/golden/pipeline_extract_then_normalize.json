@@ -1,0 +1,107 @@
+[
+  {
+    "id": "ucla_cpt_extraction_and_normalize",
+    "description": "UCLA composite → extract CPT 67101 → normalize to CPT",
+    "input": {
+      "code": "RRUCLA-7616710100-1000-67101-0761-8580-Y",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {
+      "extracted_code": "67101",
+      "extracted_code_type": null,
+      "final_code": "67101",
+      "final_code_type": "CPT"
+    }
+  },
+  {
+    "id": "ucla_office_visit_extraction",
+    "description": "UCLA composite → extract 99213 → normalize to CPT",
+    "input": {
+      "code": "RRUCLA-7616710100-1000-99213-0761-8580-Y",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {
+      "extracted_code": "99213",
+      "extracted_code_type": null,
+      "final_code": "99213",
+      "final_code_type": "CPT"
+    }
+  },
+  {
+    "id": "ucla_fallback_to_cdm",
+    "description": "UCLA composite with empty code position → fallback CDM → stays CDM after normalize",
+    "input": {
+      "code": "RRUCLA-7616710100-1000--0761-8580-Y",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {
+      "extracted_code": "7616710100",
+      "extracted_code_type": "CDM",
+      "final_code": "7616710100",
+      "final_code_type": "CDM"
+    }
+  },
+  {
+    "id": "no_config_cpt_passthrough",
+    "description": "No config - code passes through extraction unchanged, normalize classifies",
+    "input": {
+      "code": "99213",
+      "code_type": "CPT",
+      "config": null
+    },
+    "expected": {
+      "extracted_code": "99213",
+      "extracted_code_type": "CPT",
+      "final_code": "99213",
+      "final_code_type": "CPT"
+    }
+  },
+  {
+    "id": "no_match_classify_unknown",
+    "description": "Non-matching code with config - extraction skipped, normalize classifies from None",
+    "input": {
+      "code": "99213",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {
+      "extracted_code": "99213",
+      "extracted_code_type": null,
+      "final_code": "99213",
+      "final_code_type": "CPT"
+    }
+  },
+  {
+    "id": "extract_revenue_code",
+    "description": "UCLA composite with RC at position 3 → normalize classifies as RC",
+    "input": {
+      "code": "RRUCLA-7616710100-1000-0470-0761-8580-Y",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {
+      "extracted_code": "0470",
+      "extracted_code_type": null,
+      "final_code": "0470",
+      "final_code_type": "RC"
+    }
+  },
+  {
+    "id": "extract_hcpcs_a_code",
+    "description": "Extracted code starting with A is classified as HCPCS (e.g., A0425)",
+    "input": {
+      "code": "RRUCLA-7616710100-1000-A0425-0761-8580-Y",
+      "code_type": null,
+      "config": {"code_extraction": {"pattern": "^RRUCLA", "separator": "-", "code_position": 3, "fallback_position": 1}}
+    },
+    "expected": {
+      "extracted_code": "A0425",
+      "extracted_code_type": null,
+      "final_code": "A0425",
+      "final_code_type": "HCPCS"
+    }
+  }
+]
