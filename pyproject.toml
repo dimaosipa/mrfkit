@@ -27,7 +27,7 @@ dependencies = [
 
 [project.optional-dependencies]
 parquet = ["pyarrow>=14"]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "pyarrow>=14"]
 
 [project.urls]
 Source = "https://github.com/dimaosipa/mrfkit"
