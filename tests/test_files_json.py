@@ -50,12 +50,12 @@ def _reference_sanitize(data: bytes) -> bytes:
     trailing commas) are only applied outside quoted JSON strings.
     Control characters are stripped globally (they are never valid in JSON).
 
-    Must be called on the *complete* file content — not on arbitrary
-    chunks — because quote tracking requires seeing the full stream.
+    Must be called on the *complete* file content - not on arbitrary
+    chunks - because quote tracking requires seeing the full stream.
     """
     # Transcode UTF-16 to UTF-8 first (e.g. Ernest Health files).
     data = _transcode_to_utf8(data)
-    # Strip UTF-8 BOM — valid UTF-8 but not valid JSON.
+    # Strip UTF-8 BOM - valid UTF-8 but not valid JSON.
     if data[:3] == b'\xef\xbb\xbf':
         data = data[3:]
     # Fix invalid UTF-8 sequences (e.g. Windows-1252 stray bytes).
@@ -114,7 +114,7 @@ def _reference_sanitize(data: bytes) -> bytes:
                     i = j
                     continue
                 # Emit single comma + everything from (i+1) to start of the
-                # duplicate comma run was whitespace — preserve it.
+                # duplicate comma run was whitespace - preserve it.
                 out.append(0x2C)
                 # Re-emit any whitespace that was between the first comma and
                 # the second (now-removed) comma to preserve formatting.
@@ -126,12 +126,12 @@ def _reference_sanitize(data: bytes) -> bytes:
                 continue
             # Single comma: check for trailing comma (comma followed by ] or }).
             if j < n and data[j] in (0x5D, 0x7D):  # ] or }
-                # Trailing comma — drop the comma, preserve whitespace.
+                # Trailing comma - drop the comma, preserve whitespace.
                 for k in range(i + 1, j):
                     out.append(data[k])
                 i = j
                 continue
-            # Normal comma — emit it and all following whitespace as-is.
+            # Normal comma - emit it and all following whitespace as-is.
             out.append(bch)
             i += 1
             continue
@@ -143,7 +143,7 @@ def _reference_sanitize(data: bytes) -> bytes:
 
 
 # ============================================================================
-# _sanitize_json_bytes — unit tests
+# _sanitize_json_bytes - unit tests
 # ============================================================================
 
 class TestSanitizeJsonBytes:
@@ -279,7 +279,7 @@ class TestStringAwareness:
 
 
 # ============================================================================
-# open_json(sanitize=True) — integration tests with real files
+# open_json(sanitize=True) - integration tests with real files
 # ============================================================================
 
 class TestOpenJsonSanitized:
@@ -374,7 +374,7 @@ class TestOpenJsonSanitized:
 
 
 # ============================================================================
-# open_json — context manager integration test
+# open_json - context manager integration test
 # ============================================================================
 
 class TestOpenFileBinary:
@@ -410,7 +410,7 @@ class TestOpenFileBinary:
 
 
 # ============================================================================
-# open_json() — raw streaming mode
+# open_json() - raw streaming mode
 # ============================================================================
 
 class TestOpenFileBinaryRawMode:
@@ -450,7 +450,7 @@ class TestOpenFileBinaryRawMode:
             path.unlink()
 
     def test_raw_does_not_sanitize(self):
-        """Raw mode should NOT fix malformed JSON — caller handles fallback."""
+        """Raw mode should NOT fix malformed JSON - caller handles fallback."""
         data = b'[{"a":1},,{"b":2}]'
         path = self._write_temp(data)
         try:
@@ -552,7 +552,7 @@ class TestIjsonIntegration:
 
 
 # ============================================================================
-# _fix_invalid_utf8 — unit tests
+# _fix_invalid_utf8 - unit tests
 # ============================================================================
 
 class TestFixInvalidUtf8:
@@ -567,7 +567,7 @@ class TestFixInvalidUtf8:
 
     def test_valid_utf8_with_multibyte(self):
         """Valid multi-byte UTF-8 chars should pass through."""
-        data = 'résumé — done'.encode('utf-8')
+        data = 'résumé \u2014 done'.encode('utf-8')
         assert fix_utf8(data) == data
 
     def test_windows_1252_nbsp_replaced(self):
@@ -626,7 +626,7 @@ class TestFixInvalidUtf8:
 
 
 # ============================================================================
-# _sanitize_json_bytes — UTF-8 handling
+# _sanitize_json_bytes - UTF-8 handling
 # ============================================================================
 
 class TestSanitizeJsonBytesUtf8:
@@ -658,7 +658,7 @@ class TestSanitizeJsonBytesUtf8:
 
 
 # ============================================================================
-# Utf8SanitizingReader — unit tests
+# Utf8SanitizingReader - unit tests
 # ============================================================================
 
 class TestUtf8SanitizingReader:
@@ -724,7 +724,7 @@ class TestUtf8SanitizingReader:
         # é = b'\xc3\xa9' in UTF-8
         data = 'café résumé'.encode('utf-8')
         reader = Utf8SanitizingReader(io.BytesIO(data), chunk_size=4)
-        # Drive with small reads — some will land mid-sequence.
+        # Drive with small reads - some will land mid-sequence.
         chunks = []
         while True:
             chunk = reader.read(3)
@@ -742,7 +742,7 @@ class TestUtf8SanitizingReader:
 
 
 # ============================================================================
-# open_json() — UTF-8 sanitization in raw mode
+# open_json() - UTF-8 sanitization in raw mode
 # ============================================================================
 
 class TestOpenFileBinaryUtf8Raw:
@@ -834,7 +834,7 @@ class TestOpenFileBinaryUtf8Raw:
 
 
 # ============================================================================
-# _detect_utf16_encoding — unit tests
+# _detect_utf16_encoding - unit tests
 # ============================================================================
 
 class TestDetectUtf16Encoding:
@@ -865,7 +865,7 @@ class TestDetectUtf16Encoding:
 
 
 # ============================================================================
-# _transcode_to_utf8 — unit tests
+# _transcode_to_utf8 - unit tests
 # ============================================================================
 
 class TestTranscodeToUtf8:
@@ -1033,7 +1033,7 @@ class TestOpenFileBinaryUtf16:
 
 
 # ============================================================================
-# JsonSanitizingReader — streaming sanitizer
+# JsonSanitizingReader - streaming sanitizer
 # ============================================================================
 
 class TestJsonSanitizingReader:
@@ -1231,7 +1231,7 @@ class TestJsonSanitizingReader:
 
 
 # ============================================================================
-# open_json(sanitize=True) — end-to-end with files
+# open_json(sanitize=True) - end-to-end with files
 # ============================================================================
 
 class TestOpenJsonSanitizedStreaming:
