@@ -77,7 +77,8 @@ class ParseStats:
     Pass one instance per file as ``stats=`` to ``is_rejected_code`` and
     ``apply_baked_modifier_split``. Sample lists keep at most
     ``sample_limit`` entries, with each value cut short, so a file with
-    millions of bad rows cannot blow up memory.
+    millions of bad rows cannot blow up memory. The TiC readers count each
+    JSON path they could not map in ``unmapped_paths``.
     """
 
     sample_limit: int = 20
@@ -89,11 +90,25 @@ class ParseStats:
     baked_modifier_splits: int = 0
     baked_modifiers: Dict[str, int] = field(default_factory=dict)
     baked_modifier_samples: List[Dict[str, str]] = field(default_factory=list)
+    unmapped_path_limit: int = 500
+    unmapped_paths: Dict[str, int] = field(default_factory=dict)
 
     def warn(self, message: str) -> None:
         """Keep *message* for the caller and log it."""
         self.warnings.append(message)
         logging.getLogger("mrfkit").warning(message)
+
+    def record_unmapped_path(self, path: str) -> None:
+        """Count one occurrence of *path*: a JSON path a reader could not map.
+
+        Only the path and a count are kept, never the value found there, so
+        free text in an unknown field cannot end up in the output. At most
+        ``unmapped_path_limit`` distinct paths are kept.
+        """
+        if path in self.unmapped_paths:
+            self.unmapped_paths[path] += 1
+        elif len(self.unmapped_paths) < self.unmapped_path_limit:
+            self.unmapped_paths[path] = 1
 
     def record_rejected_code(
         self, code: Optional[str], code_type: Optional[str],

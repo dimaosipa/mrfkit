@@ -1,6 +1,6 @@
 # mrfkit
 
-mrfkit reads US hospital price transparency files and turns them into clean, normalized tables.
+mrfkit reads US hospital and insurer price transparency files and turns them into clean, normalized tables.
 
 Every US hospital must publish its prices in a machine-readable file (MRF). The files are huge, and no two look alike. Columns get renamed, payers sit in rows or in columns, codes come glued to modifiers, and plenty of JSON files are not valid JSON. mrfkit handles that mess, so you get the same tables from any file.
 
@@ -63,6 +63,23 @@ with mrfkit.open_sink("out/", "parquet") as sink:
 
 Every data row carries its item key (`code`, `code_type`, `billing_class`, `setting`, `modifiers`), so the tables join without a database.
 
+## Insurer files (Transparency in Coverage)
+
+Insurers publish their negotiated rates as Transparency in Coverage (TiC) JSON files. `mrfkit` and `iter_records` recognize them by their root keys and read two kinds:
+
+- In-network rates files (`provider_references` and `in_network`), into two main tables. `tic_provider_groups` has one row per provider group (a TIN and its NPIs) behind each of the file's provider references. `tic_rates` has one row per distinct price for a billing code: identical prices are merged, and `provider_group_ids` lists every group that has the price, so a code priced the same for 5,000 providers is one row, not 5,000. `tic_file_metadata` holds the reporting entity, last-updated date, version and network name.
+- Tables of contents (`reporting_structure`), into `tic_index`: one row per plan and in-network file, with the file's URL. `mrfkit.group_tic_networks` groups those rows into networks, one per in-network file name.
+
+Both stream: memory holds one item or plan structure at a time, plus the provider groups' ids, never the whole file. Item names and descriptions are never read into a row, and a key mrfkit does not know is counted by its JSON path only (`ParseStats.unmapped_paths`, or `mrfkit -v`), never with its value.
+
+```python
+for record in mrfkit.iter_records("2026-09-01_network_in-network-rates.json.gz"):
+    if isinstance(record, mrfkit.TicRate):
+        print(record.billing_code, record.negotiated_rate, record.provider_group_ids)
+```
+
+Allowed-amount and prescription-drug files are not supported, and provider groups kept in a separate file behind a URL are reported but not fetched.
+
 ## What it handles
 
 - CMS templates, versions 2 and 3, as CSV (tall and wide) and JSON
@@ -80,7 +97,7 @@ Every data row carries its item key (`code`, `code_type`, `billing_class`, `sett
 
 - Download files. Point it at files you already have.
 - Fix hospital errors. mrfkit reports what the file says.
-- Insurer Transparency in Coverage files. They are planned for v0.2.
+- Insurer allowed-amount and prescription-drug files.
 
 ## Disclaimer
 

@@ -1,0 +1,69 @@
+{
+  "reporting_entity_name": "Example Health Plan",
+  "reporting_entity_type": "health insurance issuer",
+  "reporting_structure": [
+    {
+      "reporting_plans": [
+        {
+          "plan_name": "PPO Group A",
+          "plan_id_type": "EIN",
+          "plan_id": "111111111",
+          "plan_market_type": "group"
+        },
+        {
+          "plan_name": "PPO Group B",
+          "plan_id_type": "EIN",
+          "plan_id": "111111112",
+          "plan_market_type": "group"
+        }
+      ],
+      "in_network_files": [
+        {
+          "description": "PPO in-network",
+          "location": "https://payer.example.com/mrf/2026-09-01_2001-in-network-rates_0.json.gz?sig=a1"
+        },
+        {
+          "description": "PPO capitation",
+          "location": "https://payer.example.com/mrf/2026-09-01_2001-cap-rates_0.json.gz"
+        }
+      ],
+      "allowed_amount_file": {
+        "description": "allowed amounts",
+        "location": "https://payer.example.com/mrf/2026-09-01_allowed-amounts.json.gz"
+      }
+    },
+    {
+      "reporting_plans": [
+        {
+          "plan_name": "EPO Individual",
+          "plan_id_type": "HIOS",
+          "plan_id": "12345CA0010001",
+          "plan_market_type": "individual"
+        }
+      ],
+      "in_network_files": [
+        {
+          "description": "PPO in-network",
+          "location": "https://payer.example.com/mrf/2026-09-01_2001-in-network-rates_0.json.gz?sig=b2"
+        },
+        {
+          "description": "Custom network",
+          "location": "https://payer.example.com/mrf/custom-network-rates.json"
+        },
+        {
+          "description": "no location here"
+        }
+      ]
+    },
+    {
+      "reporting_plans": [],
+      "in_network_files": [
+        {
+          "description": "Second month copy",
+          "location": "https://payer.example.com/mrf/2026-10_2001-in-network-rates_0.json.gz"
+        }
+      ]
+    }
+  ],
+  "version": "1.3.1"
+}

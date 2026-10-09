@@ -4,6 +4,9 @@ Every record carries its charge item's key (code, code_type, billing_class,
 setting, modifiers), so standard charges, payer rates and unmapped cells join
 back to their item without a database. Values are what the file says after
 normalization: mrfkit never truncates text or clamps numbers.
+
+Insurer Transparency in Coverage records (``Tic*``) come last and use the TiC
+schema's own field names.
 """
 
 from __future__ import annotations
@@ -162,3 +165,96 @@ class ModifierInfo:
     raw_payer_name: Optional[str] = None
     plan_name: Optional[str] = None
     payer_description: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
+# Insurer Transparency in Coverage (TiC) files
+# ---------------------------------------------------------------------------
+
+@dataclass(slots=True)
+class TicFileMetadata:
+    """What a TiC in-network rates file says about itself.
+
+    ``network_name`` is the first provider reference's network label, which
+    payers repeat on every reference.
+    """
+
+    TABLE: ClassVar[str] = "tic_file_metadata"
+
+    reporting_entity_name: Optional[str] = None
+    reporting_entity_type: Optional[str] = None
+    last_updated_on: Optional[str] = None
+    version: Optional[str] = None
+    network_name: Optional[str] = None
+
+
+@dataclass(slots=True)
+class TicProviderGroup:
+    """One provider group, a TIN and its NPIs, behind a provider reference.
+
+    ``group_id`` is the file's own ``provider_group_id``, so it is unique
+    only within one file, and a reference holding several groups has several
+    rows. A group listed inline on a rate gets a synthetic ``inline-N`` id.
+    ``tin`` is digits only. Several NPIs are joined with ``|``.
+    """
+
+    TABLE: ClassVar[str] = "tic_provider_groups"
+
+    group_id: str
+    tin_type: Optional[str]
+    tin: str
+    npis: str
+    business_name: Optional[str] = None
+
+
+@dataclass(slots=True)
+class TicRate:
+    """One negotiated price for a billing code, shared by provider groups.
+
+    Identical prices for one code are merged into a single record whose
+    ``provider_group_ids`` (``|``-joined, sorted) lists every
+    :class:`TicProviderGroup` that has it, instead of one row per provider
+    or NPI. A ``percentage`` price fills ``negotiated_percentage``, every
+    other type ``negotiated_rate``. ``expiration_date`` is ``9999-12-31``
+    when the price does not expire, and ``setting`` is empty when the file
+    gives none. Several service codes or modifiers are joined with ``|``.
+    """
+
+    TABLE: ClassVar[str] = "tic_rates"
+
+    billing_code: Optional[str]
+    billing_code_type: Optional[str]
+    billing_code_type_version: Optional[str] = None
+    negotiation_arrangement: Optional[str] = None
+    negotiated_type: str = ""
+    negotiated_rate: Optional[float] = None
+    negotiated_percentage: Optional[float] = None
+    expiration_date: str = "9999-12-31"
+    billing_class: str = ""
+    setting: str = ""
+    service_codes: Optional[str] = None
+    modifiers: Optional[str] = None
+    provider_group_ids: str = ""
+
+
+@dataclass(slots=True)
+class TicIndexEntry:
+    """One in-network file a plan uses, from a TiC table of contents.
+
+    One record per (reporting plan, in-network file) pair of a
+    ``reporting_structure``: a structure with two plans and three files
+    gives six records. ``allowed_amount_location`` is the structure's
+    allowed-amount file, which mrfkit does not read.
+    """
+
+    TABLE: ClassVar[str] = "tic_index"
+
+    reporting_entity_name: Optional[str] = None
+    reporting_entity_type: Optional[str] = None
+    plan_name: Optional[str] = None
+    plan_id: Optional[str] = None
+    plan_id_type: Optional[str] = None
+    plan_market_type: Optional[str] = None
+    in_network_location: str = ""
+    in_network_description: Optional[str] = None
+    allowed_amount_location: Optional[str] = None
